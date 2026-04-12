@@ -6,12 +6,21 @@ global barra, disco, bulge, halo, parsb, ctes_rk78, sect, sectx
 
 import numpy as np
 import os
-from maths.puntequil import puntequil
+from .maths.puntequil import puntequil
+from .initializer import initializer
 
-from initializer import initializer
-barra, disco, bulge, halo, parsb = initializer("./input/modMiyFer_Om13.dat")
+#initialize "globals"
+base = "pythonbase/"
+inputfolder = base+"./input/"
+fil = "1" #tbd
+col = "3" #tbd
+arxiu = "_Om"+fil+col+".dat"
+arxi = inputfolder+"modMiyFer"+arxiu
+barra, disco, bulge, halo, parsb = initializer(arxi)
 
-#definir com a objectes?
+#configure options for aproxlineal, #TODO maybe set from a .config file
+options = {"verbose":True,"tolerance":1e-8,"maxiter":300} 
+#TODO verbose: False currently breaks puntequil? 
 
 def centro_masas_halo(xdbulge, xydhalo):
     md = disco.GM
@@ -27,12 +36,9 @@ def centro_masas_halo(xdbulge, xydhalo):
     mh = halo.GM
     centroh = np.array([xydhalo[0], xydhalo[1],0])
 
-    print(md,mb,mesf,mh)
     mt = md+mb+mesf+mh
     
-    print(mt)
-    
-    cm = (1/mt)*(md*centrod +mb* centrob + mesf* centroesf + mh * centroh) #caldrà tractar com a np arrays
+    cm = (1/mt)*(md*centrod +mb* centrob + mesf* centroesf + mh * centroh)
 
     return cm
 
@@ -72,29 +78,24 @@ def matriz_rk78():
 
 #llegir valors de la barra i del disc a partir d'un .txt
 
-dire = "./modMiyFer/"
 data = "./datos/"
-fil = "1" #tbd
-col = "3" #tbd
-arxiu = "_Om"+fil+col+".dat"
-arxi = dire+"modMiyFer"+arxiu
-arxi2 = ""
 
-
-xd = [2.5] #make sure it is a list
+xd = [0.1] #make sure it is a list
 
 xdhalo = 0
-ydhalo = -2
+ydhalo = 0
 xydhalo = [xdhalo,ydhalo]
 
 for indxd in range(len(xd)):
     xdbulge = xd[indxd] #REFORMAT THIS S
     
     [xcm, ycm, zcm] = centro_masas_halo(xdbulge,xydhalo)
-    
+    print(xcm,ycm,zcm)
+
     #PER A TOTA AQUESTA SECCIÓ, comentar i replantejar codi
     # tot això es podria fer amb vectors directament, tipus barra.db = despbar
     despbar = [-xcm,-ycm] #WARN 3Dim, mirar orientacions que siguin correctes
+    print(despbar)
     barra.xd = despbar[0]
     barra.yd = despbar[1]
 
@@ -114,17 +115,40 @@ for indxd in range(len(xd)):
     halo.yd = desphalo[1]
     
     datadir = data + nameit(xydhalo, xdbulge)
-    #os.path.joing(
+    
     try:
         print("creating new data directory in",datadir)
         os.makedirs(datadir) #revisar, segurament os.algo
     except:
         print("directory already exists")
+    
+    #READ INITIAL GUESS FOR EQ POINTS, maybe build a separate func for this
+    try:
+        a = ['peqi_entrada3','_halo_xd_',str(halo.xd),
+         '_yd_',str(halo.yd),
+         '_bulgexd_',str(xdbulge)]
+        ini_guess_pequi = inputfolder+"".join(a).replace(".","_")+".dat"
+        print(ini_guess_pequi)
+        ini_peqs_data = ""
+        with open(file=ini_guess_pequi, mode="r") as f:
+            ini_peqs_data = f.readlines() #5 L_i punts de 6D cadascun (p,q)\in R^6
+        ini_peqs_data = [x.strip().split(" ") for x in ini_peqs_data]
+        ini_peqs = []
+        for i in ini_peqs_data:
+            peq_i = []
+            for j in i:
+                if j=="":
+                    continue
+                peq_i.append(float(j))
+            ini_peqs.append(peq_i)
+        
+    except:
+        print("no initial guess for eq. points provided for this case")
 
     ctes_rk78 = matriz_rk78()
 
     '''Càlcul de punts d'equilibri a partir d'intent inicial'''
-    [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(arxi2)
+    [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(ini_peqs,barra,parsb,options)
        
     
 
