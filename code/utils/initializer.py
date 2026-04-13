@@ -1,5 +1,5 @@
 from .classes import Barra, Halo, Bulge, Disk, ParsB
-from .maths.helpers import elint
+from maths.helpers import elint
 import numpy as np
 
 def initializer(arxi):

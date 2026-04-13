@@ -1,5 +1,5 @@
-from ..models import der1
-from ..models import der2
+from models import der1
+from models import der2
 import numpy as np
 
 def func2(xvec,barra,disco,bulge,halo,parsb):

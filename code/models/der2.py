@@ -1,4 +1,4 @@
-from ..maths.helpers import elint, xlmbd
+from maths.helpers import elint, xlmbd
 from .other import derl, derw
 import numpy as np
 

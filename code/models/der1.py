@@ -1,4 +1,4 @@
-from ..maths.helpers import elint, xlmbd
+from maths.helpers import elint, xlmbd
 import numpy as np
 
 def bar(barra,parsb,x,y,z,omega):

@@ -1,9 +1,10 @@
 '''
-Other partial derivatives
+Other partial derivatives and useful functions
 '''
 
+import numpy as np
 from numpy import sqrt
-from ..maths.helpers import xlmbd 
+from maths.helpers import xlmbd 
 
 def derl(barra,x2,y2,z2):
     # C*************************************************************************
@@ -55,3 +56,23 @@ def derw(barra,x,y,z,i,j,k):
     aux3=sqrt(C2+xl)*((C2+xl)**k)
     d=-1/(aux1*aux2*aux3)
     return d
+
+def centro_masas_halo(xdbulge,xydhalo,barra,disco,bulge,halo):
+    md = disco.GM
+    centrod = np.array([0,0,0])
+    md = 0 #zero perque està centrat i el tenim com a referència
+    
+    mb = barra.GM
+    centrob = np.array([0,0,0])
+
+    mesf = bulge.GM
+    centroesf = np.array([xdbulge,0,0])
+
+    mh = halo.GM
+    centroh = np.array([xydhalo[0], xydhalo[1],0])
+
+    mt = md+mb+mesf+mh
+    
+    cm = (1/mt)*(md*centrod +mb* centrob + mesf* centroesf + mh * centroh)
+
+    return cm
