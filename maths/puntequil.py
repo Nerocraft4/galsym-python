@@ -1,7 +1,7 @@
 from scipy.optimize import fsolve
 from .func2 import func2, func2jac
 
-def puntequil(ini_guess,barra,parsb,options):
+def puntequil(ini_guess,barra,disco,bulge,halo,parsb,options):
     '''
     ini_guess: 5x6 vector containing 5 6D initial guesses, one for each Lagrangian point
     barra: object of class Barra
@@ -33,7 +33,7 @@ def puntequil(ini_guess,barra,parsb,options):
 
         print(i,"iniguess",xa[i][:3])
         [xf,infodict,exitflag,msg] = fsolve(func2, xa[i][:3], 
-                                        args=(barra,parsb), 
+                                        args=(barra,disco,bulge,halo,parsb), 
                                         fprime=func2jac,
                                         full_output = options["verbose"],
                                         xtol = options["tolerance"],

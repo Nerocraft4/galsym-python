@@ -1,7 +1,8 @@
-from ..models.derivatives import *
+from ..models import der1
+from ..models import der2
 import numpy as np
 
-def func2(xvec,barra,parsb):
+def func2(xvec,barra,disco,bulge,halo,parsb):
     '''
     #TODO encara he de veure què fa exactament aquesta funció
     sembla que va de R^3 a R^3xR^6
@@ -19,10 +20,10 @@ def func2(xvec,barra,parsb):
     q2=np.cos(epsilon);
     OMEGA2=omega*omega;
 
-    [pxd,pyd,pzd]=der1disk(barra,parsb,x,y,z,omega)
-    [pxb,pyb,pzb]=der1bar(barra,parsb,x,y,z,omega)
-    [pxh,pyh,pzh]=der1halo(barra,parsb,x,y,z,omega)
-    [pxbl,pybl,pzbl]=der1bulge(barra,parsb,x,y,z,omega)
+    [pxb,pyb,pzb]=der1.bar(barra,parsb,x,y,z,omega)
+    [pxd,pyd,pzd]=der1.disk(disco,x,y,z,omega)
+    [pxbl,pybl,pzbl]=der1.bulge(bulge,x,y,z,omega)
+    [pxh,pyh,pzh]=der1.halo(halo,x,y,z,omega)    
     px=pxd+pxb+pxbl+pxh
     py=pyd+pyb+pybl+pyh
     pz=pzd+pzb+pzbl+pzh
@@ -30,10 +31,9 @@ def func2(xvec,barra,parsb):
     F[0]=OMEGA2*q1*q2*z+OMEGA2*q2*q2*x-px
     F[1]=OMEGA2*y-py
     F[2]=OMEGA2*q1*q2*x+OMEGA2*q1*q1*z-pz
-    #print("F",F)
     return F
 
-def func2jac(xvec,barra,parsb):
+def func2jac(xvec,barra,disco,bulge,halo,parsb): #TODO potser és inferit i no cal?
     epsilon = barra.eps
     omega = barra.omega
 
@@ -45,10 +45,10 @@ def func2jac(xvec,barra,parsb):
     q2=np.cos(epsilon);
     OMEGA2=omega*omega;
 
-    [pxxd,pyyd,pzzd,pxyd,pxzd,pyzd]=der2disk(barra,parsb,x,y,z,omega);
-    [pxxb,pyyb,pzzb,pxyb,pxzb,pyzb]=der2bar(barra,parsb,x,y,z,omega);
-    [pxxbl,pyybl,pzzbl,pxybl,pxzbl,pyzbl]=der2bulge(barra,parsb,x,y,z,omega);
-    [phxx,phyy,phzz,phxy,phxz,phyz]=der2halo(barra,parsb,x,y,z,omega);
+    [pxxb,pyyb,pzzb,pxyb,pxzb,pyzb]=der2.bar(barra,parsb,x,y,z,omega);
+    [pxxd,pyyd,pzzd,pxyd,pxzd,pyzd]=der2.disk(disco,x,y,z,omega);
+    [pxxbl,pyybl,pzzbl,pxybl,pxzbl,pyzbl]=der2.bulge(bulge,x,y,z,omega);
+    [phxx,phyy,phzz,phxy,phxz,phyz]=der2.halo(halo,x,y,z,omega);
 
     pxx=pxxd+pxxb+pxxbl+phxx;
     pyy=pyyd+pyyb+pyybl+phyy;
@@ -63,13 +63,10 @@ def func2jac(xvec,barra,parsb):
     DF[1][1]=OMEGA2-pyy;
     DF[1][2]=-pyz;
     DF[2][2]=OMEGA2*q1*q1-pzz;
-
     #adding this just to test it out
     DF[2][0]=OMEGA2*q1*q2-pxz;
     DF[1][0]=-pxy;
     DF[2][1]=-pyz;
-    
-    #print("DF",DF)
     return DF
 
 

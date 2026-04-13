@@ -148,7 +148,7 @@ for indxd in range(len(xd)):
     ctes_rk78 = matriz_rk78()
 
     '''Càlcul de punts d'equilibri a partir d'intent inicial'''
-    [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(ini_peqs,barra,parsb,options)
+    [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(ini_peqs,barra,disco,bulge,halo,parsb,options)
        
     
 

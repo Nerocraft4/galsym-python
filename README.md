@@ -1,6 +1,3 @@
 Status:
-  - implementing func2
-
-
-To implement:
-  - all der1 and der2 for all models
+	- Just implemented der1, der2, and other helper functions such as derl, derw, elint and xlmbd.
+	- Now, we need to continue on main
