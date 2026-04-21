@@ -48,12 +48,11 @@ def puntequil(ini_guess,barra,disco,bulge,halo,parsb,options):
                 xf[j]=0
         pequil.append(xf)
         
-
+    #ORDRE VE DONAR PER INPUT FILE
     peqL1 = [barra.eps,pequil[1],0,0,0] # punto equilibrio derecho
     peqL2 = [barra.eps,pequil[2],0,0,0] # punto equilibrio izquierdo
     peqL3 = [barra.eps,pequil[0],0,0,0] # punto equilibrio central
     peqL4 = [barra.eps,pequil[3],0,0,0] # punto equilibrio superior
     peqL5 = [barra.eps,pequil[4],0,0,0] # punto equilibrio inferior
 
-    #TODO perquè canviem ordre si fora es torna a desfer???
     return [peqL1, peqL2, peqL3,peqL4, peqL5]

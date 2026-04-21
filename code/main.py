@@ -8,6 +8,7 @@ import numpy as np
 import os
 from maths.puntequil import puntequil
 from maths.helpers import matriz_rk78
+from maths.DF import DF
 from utils.initializer import initializer
 from utils.namers import name_datadir, name_ini_guess_pequi_file
 from utils.io import read_ini_peqs_file
@@ -42,12 +43,14 @@ for indxd in range(len(xd)):
 
     #PER A TOTA AQUESTA SECCIÓ, comentar i replantejar codi
     # tot això es podria fer amb vectors directament, tipus barra.db = despbar
-    despbar = [-xcm,-ycm] #WARN 3Dim, mirar orientacions que siguin correctes
+    despbar = [-xcm,-ycm] 
+    #WARN 3Dim, mirar orientacions que siguin correctes
     print(despbar)
     barra.xd = despbar[0]
     barra.yd = despbar[1]
 
-    #idem
+    #idem #TODO make sure the displacement is consistent in 3D
+    #TODO density curves will help check if this translations are correct
     despesf = [xdbulge,0]
     bulge.xd = barra.xd + despesf[0]
     bulge.yd = barra.yd + despesf[1]
@@ -80,9 +83,28 @@ for indxd in range(len(xd)):
     ctes_rk78 = matriz_rk78()
 
     '''Càlcul de punts d'equilibri a partir d'intent inicial'''
+    #TODO Check this with isopotential curve / zerovel curves
+    #TODO check tol 1e-08
     [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(ini_peqs,barra,disco,bulge,halo,parsb,options)
-       
     
+    '''
+    for k in [peqL1,peqL2,peqL3,peqL4,peqL5]:
+        print(k)
+        DFLk = DF(k[1],barra,disco,bulge,halo,parsb)
+        eigvals_DFLk,eigvecs_DFLk = np.linalg.eig(DFLk)
+        print([x for x in eigvals_DFLk])
+    print(len(eigvals_DFL1))
+    for i in range(len(eigvals_DFL1)):
+        eigv = eigvecs_DFL1[i]
+        print("eigenvec",i)
+        print(eigvals_DFL1[i])
+        for j in eigvecs_DFL1[i]:
+            print(j)
+    '''
+    for k in [peqL1,peqL2,peqL3,peqL4,peqL5]:
+        DFLk = DF(k[1],barra,disco,bulge,halo,parsb)
+        eigvals_DFLk,eigvecs_DFLk = np.linalg.eig(DFLk)
+        print([x for x in eigvals_DFLk])
 
 
 
