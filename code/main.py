@@ -12,7 +12,11 @@ from maths.DF import DF
 from utils.initializer import initializer
 from utils.namers import name_datadir, name_ini_guess_pequi_file
 from utils.io import read_ini_peqs_file
-from models.other import centro_masas_halo
+from models.other import centro_masas_halo, derFdelta
+
+#TODO temp
+from matplotlib import pyplot as plt
+import matplotlib.animation as animation
 
 #initialize "globals"
 base = "." #TODO cuidado amb això, potser automatitzar?
@@ -101,10 +105,30 @@ for indxd in range(len(xd)):
         for j in eigvecs_DFL1[i]:
             print(j)
     '''
-    for k in [peqL1,peqL2,peqL3,peqL4,peqL5]:
-        DFLk = DF(k[1],barra,disco,bulge,halo,parsb)
-        eigvals_DFLk,eigvecs_DFLk = np.linalg.eig(DFLk)
-        print([x for x in eigvals_DFLk])
+    h = 0.01
+    for k in [peqL1,peqL2,peqL4,peqL5]:
+        #continuation
+        a = k[1]
+        continuation = [a]
+        for j in range(400):
+            DFLk = DF(a,barra,disco,bulge,halo,parsb)
+            eigvals_DFLk,eigvecs_DFLk = np.linalg.eig(DFLk)
+            #all eigenvalues should be *almost purely imaginary
+            Fk_delta = derFdelta(delta=xdbulge,xvec=k[1][:3],barra=barra,disco=disco,bulge=bulge,halo=halo,parsb=parsb)
+            u_dot = np.linalg.solve(DFLk,-Fk_delta) #direction vector
+            a = a - u_dot[:3]*h
+            continuation.append(a)
+        continuation = np.array(continuation).transpose()
+        #print()
+        plt.scatter(continuation[:][0],continuation[:][1],s=3)
+        
+        #print(u_dot)
+    plt.show()
+
+    
+        
+
+
 
 
 

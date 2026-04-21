@@ -3,8 +3,35 @@ Other partial derivatives and useful functions
 '''
 
 import numpy as np
-from numpy import sqrt
+from numpy import sqrt, sin, cos
 from maths.helpers import xlmbd 
+from models import der2
+
+def derFdelta(delta,xvec,barra,disco,bulge,halo,parsb):
+    # Derivada de func2 respecte delta, que és el desplacament de la barra en x
+    #
+    #
+    epsilon = barra.eps
+    omega = barra.omega
+    OMEGA2 = omega*omega
+
+    x = xvec[0]
+    y = xvec[1]
+    z = xvec[2]
+    Q1 = sin(epsilon)
+    Q2 = cos(epsilon)
+
+    [pxxb,pyyb,pzzb,pxyb,pxzb,pyzb]=der2.bar(barra,parsb,x,y,z,omega)
+    [pxxd,pyyd,pzzd,pxyd,pxzd,pyzd]=der2.disk(disco,x,y,z,omega)
+    [pxxbl,pyybl,pzzbl,pxybl,pxzbl,pyzbl]=der2.bulge(bulge,x,y,z,omega)
+    [pxxh,pyyh,pzzh,pxyh,pxzh,pyzh]=der2.halo(halo,x,y,z,omega)
+
+    #print("pxy",pxyd,pxyb,pxybl,pxyh)
+
+    pxx=pxxd+pxxb+pxxbl+pxxh
+    a = OMEGA2*Q2*Q2 - pxx #TODO estic segur d'això? té sentit, però... idk
+    b = OMEGA2*Q1*Q2
+    return np.array([0,0,0,a,0,b])
 
 def derl(barra,x2,y2,z2):
     # C*************************************************************************

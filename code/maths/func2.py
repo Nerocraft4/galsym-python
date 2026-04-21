@@ -4,9 +4,10 @@ import numpy as np
 
 def func2(xvec,barra,disco,bulge,halo,parsb):
     '''
-    #TODO encara he de veure què fa exactament aquesta funció
-    sembla que va de R^3 a R^3
-    és a dir, envia xvec(3dim) a F(3).
+    CREC que aquesta funció és el sistema de primer ordre
+    d'equacions diferencials de l'eq 10 del paper del 2016
+    de la Patricia, però quan x4,x5,x6=0. Té sentit, suposo,
+    ja que ens trobem en punts d'equilibri no?
     '''
     epsilon = barra.eps
     omega = barra.omega
