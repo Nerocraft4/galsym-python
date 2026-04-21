@@ -105,6 +105,8 @@ for indxd in range(len(xd)):
         for j in eigvecs_DFL1[i]:
             print(j)
     '''
+    #TODO moure això a un arxiu de plots
+    #TODO També, potencialment, donar l'opció a fer que sigui animat i guardar-ho com a vídeo
     h = 0.01
     for k in [peqL1,peqL2,peqL4,peqL5]:
         #continuation
