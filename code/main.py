@@ -18,6 +18,8 @@ from models.other import centro_masas_halo, derFdelta
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
+from maths.helpers import isopotencial
+
 #initialize "globals"
 base = "." #TODO cuidado amb això, potser automatitzar?
 inputfolder = base+"/input/"
@@ -88,7 +90,6 @@ for indxd in range(len(xd)):
 
     '''Càlcul de punts d'equilibri a partir d'intent inicial'''
     #TODO Check this with isopotential curve / zerovel curves
-    #TODO check tol 1e-08
     [peqL1,peqL2,peqL3,peqL4,peqL5] = puntequil(ini_peqs,barra,disco,bulge,halo,parsb,options)
     
     '''
@@ -126,7 +127,11 @@ for indxd in range(len(xd)):
         
         #print(u_dot)
     plt.show()
-
+    curva = isopotencial(10, 100, barra, disco, bulge, halo, parsb)
+    curva = np.array(curva).transpose()
+    plt.scatter(curva[0],curva[1],s=2)
+    plt.show()
+    
     
         
 

@@ -94,3 +94,21 @@ def xlmbd(X,Y,Z,A,B,C):
             V = R**US3;
         XLA = U + V - C2;
     return XLA
+
+from models import pot
+
+def isopotencial(radius, idim, barra, disco, bulge, halo, parsb):
+    step = 2*radius/(1.0*idim)
+    curva = []
+    for i in range(idim):
+        for j in range(idim):
+            x = -radius+step*i
+            y = -radius+step*j
+            z = 0
+            potef = pot.efectivo(x,y,z,barra, disco, bulge, halo, parsb)
+            
+            curva.append([x,potef])
+    return curva
+
+
+
