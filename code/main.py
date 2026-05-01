@@ -18,7 +18,7 @@ from models.other import centro_masas_halo, derFdelta
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 
-from maths.helpers import isopotencial
+from maths.helpers import isopotencial, isodensidad, isodensidad_all
 
 #initialize "globals"
 base = "." #TODO cuidado amb això, potser automatitzar?
@@ -127,11 +127,37 @@ for indxd in range(len(xd)):
         
         #print(u_dot)
     plt.show()
+
+
     curva = isopotencial(10, 100, barra, disco, bulge, halo, parsb)
     curva = np.array(curva).transpose()
-    plt.scatter(curva[0],curva[1],s=2)
+    sc = plt.scatter(curva[0],curva[1],s=3,c=curva[3])
+    plt.gca().set_aspect('equal')
+    plt.title("isopotencial")
+    plt.colorbar(sc)
+    plt.show()
+
+    curva = isodensidad(10, 100, barra, disco, bulge, halo)
+    curva = np.array(curva).transpose()
+    sc = plt.scatter(curva[0],curva[1],s=3,c=curva[3])
+    plt.gca().set_aspect('equal')
+    plt.title("isodensidad")
+    plt.colorbar(sc)
     plt.show()
     
+    fig, axs = plt.subplots(2,2)
+    tts = ["barra", "disco", "bulge", "halo"]
+    curva = isodensidad_all(10, 100, barra, disco, bulge, halo)
+    curva = np.array(curva).transpose()
+    plt.gca().set_aspect('equal')
+    for i in [0,1]:
+        for j in [0,1]:
+            t = axs[i,j].scatter(curva[0],curva[1],s=3,c=curva[4+2*i+j])
+            axs[i,j].set_title(tts[2*i+j])
+            axs[i,j].set_aspect('equal')
+            plt.colorbar(t,ax=axs[i,j])
+    fig.suptitle("densidades de cada parte")
+    plt.show()
     
         
 

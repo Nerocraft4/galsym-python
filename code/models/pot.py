@@ -123,3 +123,4 @@ def efectivo(x,y,z,mbarra,mdisco,mbulge,mhalo,parsb):
     potmf = pbar + pdisk + pbulge + phalo
     potef = potmf - 0.5*omega**2*((Q2*x)**2+y**2+(Q1*z)**2)-omega**2*Q1*Q2*x*z
     return potef
+

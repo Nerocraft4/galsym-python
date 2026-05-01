@@ -95,9 +95,17 @@ def xlmbd(X,Y,Z,A,B,C):
         XLA = U + V - C2;
     return XLA
 
-from models import pot
+from models import pot #TODO maybe moure adalt
 
 def isopotencial(radius, idim, barra, disco, bulge, halo, parsb):
+    '''
+    Inputs:
+        - radius:           area to be sampled, in kiloparsecs
+        - idim:             sample points in the area
+        - model constants:  barra, disco, bulge, halo, parsb, etc
+    Outputs:
+        - idim^2 x 4 list ([[x,y,z,pot],[x,y,z,pot],...])
+    '''
     step = 2*radius/(1.0*idim)
     curva = []
     for i in range(idim):
@@ -106,8 +114,55 @@ def isopotencial(radius, idim, barra, disco, bulge, halo, parsb):
             y = -radius+step*j
             z = 0
             potef = pot.efectivo(x,y,z,barra, disco, bulge, halo, parsb)
-            
-            curva.append([x,potef])
+            curva.append([x,y,z,potef])
+    return curva
+
+from models import dens #TODO maybe moure adalt
+
+def isodensidad(radius, idim, barra, disco, bulge, halo):
+    '''
+    Inputs:
+        - radius:           area to be sampled, in kiloparsecs
+        - idim:             sample points in the area
+        - model constants:  barra, disco, bulge, halo, parsb, etc
+    Outputs:
+        - idim^2 x 4 list ([[x,y,z,dens],[x,y,z,dens],...])
+    '''
+    step = 2*radius/(1.0*idim)
+    curva = []
+    for i in range(idim):
+        for j in range(idim):
+            x = -radius+step*i
+            y = -radius+step*j
+            z = 0
+            densef = dens.efectiva(x,y,z,barra, disco, bulge, halo)
+            curva.append([x,y,z,densef])
+    return curva
+
+
+def isodensidad_all(radius, idim, barra, disco, bulge, halo):
+    '''
+    Original "isodensidad.m" function, that returns all densities
+    Inputs:
+        - radius:           area to be sampled, in kiloparsecs
+        - idim:             sample points in the area
+        - model constants:  barra, disco, bulge, halo, parsb, etc
+    Outputs:
+        - idim^2 x 8 list ([[x,y,z,dens,densbar,densdisk,densbulge,denshalo],[x,y,z,dens,...],...])
+    '''
+    step = 2*radius/(1.0*idim)
+    curva = []
+    for i in range(idim):
+        for j in range(idim):
+            x = -radius+step*i
+            y = -radius+step*j
+            z = 0
+            densef    = dens.efectiva(x,y,z,barra, disco, bulge, halo)
+            densbar   = dens.bar(x,y,z,barra)
+            densdisk  = dens.disk(x,y,z,disco)
+            densbulge = dens.bulge(x,y,z,bulge)
+            denshalo  = dens.halo(x,y,z,halo)
+            curva.append([x,y,z,densef,densbar,densdisk,densbulge,denshalo])
     return curva
 
 
