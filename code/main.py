@@ -17,6 +17,7 @@ from models.other import centro_masas_halo, derFdelta
 #TODO temp
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
+from maths.func2 import func2
 
 from maths.helpers import isopotencial, isodensidad, isodensidad_all
 
@@ -37,8 +38,9 @@ options = {"verbose":True,"tolerance":1e-8,"maxiter":300}
 #llegir valors de la barra i del disc a partir d'un .txt
 
 xd = [0.1] #make sure it is a list
-xdhalo = 0
-ydhalo = 0
+xdhalo = 0 
+ydhalo = 0 #max -4
+# o desplaçar halo en la direcció contraria a bulge
 xydhalo = [xdhalo,ydhalo]
 
 for indxd in range(len(xd)):
@@ -108,33 +110,67 @@ for indxd in range(len(xd)):
     '''
     #TODO moure això a un arxiu de plots
     #TODO També, potencialment, donar l'opció a fer que sigui animat i guardar-ho com a vídeo
-    h = 0.01
-    for k in [peqL1,peqL2,peqL4,peqL5]:
+
+    increment_delta = 0.001
+    continuation_length = 7 #kpcs
+    func2vals = []
+    for k in [peqL1,peqL2,peqL3,peqL4,peqL5]:
         #continuation
         a = k[1]
         continuation = [a]
-        for j in range(400):
+        cs = [0]
+        delta = xdbulge
+        func2val = []
+        iterations = int(continuation_length/increment_delta)
+        for j in range(iterations):
             DFLk = DF(a,barra,disco,bulge,halo,parsb)
             eigvals_DFLk,eigvecs_DFLk = np.linalg.eig(DFLk)
-            #all eigenvalues should be *almost purely imaginary
-            Fk_delta = derFdelta(delta=xdbulge,xvec=k[1][:3],barra=barra,disco=disco,bulge=bulge,halo=halo,parsb=parsb)
+            #all eigenvalues should be purely imaginary
+            
+            #updating center of masses and all??
+            [xcm, ycm, zcm] = centro_masas_halo(delta,xydhalo,barra,disco,bulge,halo)
+            #if j%50==0: print(xcm,ycm,zcm)
+            despbar = [-xcm,-ycm] 
+            barra.xd = despbar[0]
+            barra.yd = despbar[1]
+            despesf = [delta,0]
+            bulge.xd = barra.xd + despesf[0]
+            bulge.yd = barra.yd + despesf[1]
+            
+            Fk_delta = derFdelta(delta=delta,xvec=k[1][:3],
+                                 barra=barra,disco=disco,
+                                 bulge=bulge,halo=halo,parsb=parsb)
             u_dot = np.linalg.solve(DFLk,-Fk_delta) #direction vector
-            a = a - u_dot[:3]*h
+            a = a - u_dot[:3]*increment_delta
+            func2val.append(np.linalg.norm(func2(a,barra,disco,bulge,halo,parsb)))
+            delta = delta + increment_delta
             continuation.append(a)
+            cs.append(j)
+        
+        func2vals.append(func2val)    
         continuation = np.array(continuation).transpose()
         #print()
-        plt.scatter(continuation[:][0],continuation[:][1],s=3)
+        plt.scatter(continuation[:][0],continuation[:][1],s=3,c=cs)
         
         #print(u_dot)
     plt.show()
+    for i in range(5):
+        plt.plot(func2vals[i])
+    plt.legend(["L1","L2","L3","L4","L5"])
+    plt.title("Error evolution when continuating eq points")
+    plt.xlabel("Delta Xbulge, $10^3=1kpc$")
+    plt.ylabel("Norm of the amended potential")
+    plt.show()
+    break    
 
-
-    curva = isopotencial(10, 100, barra, disco, bulge, halo, parsb)
+    curva = isopotencial(5, 100, barra, disco, bulge, halo, parsb)
     curva = np.array(curva).transpose()
     sc = plt.scatter(curva[0],curva[1],s=3,c=curva[3])
     plt.gca().set_aspect('equal')
-    plt.title("isopotencial")
+    plt.title("isopotencial, zoom")
     plt.colorbar(sc)
+    plt.axhline(0, linestyle='--',c="black")
+    plt.axvline(0, linestyle='--',c="black")
     plt.show()
 
     curva = isodensidad(10, 100, barra, disco, bulge, halo)
@@ -147,7 +183,7 @@ for indxd in range(len(xd)):
     
     fig, axs = plt.subplots(2,2)
     tts = ["barra", "disco", "bulge", "halo"]
-    curva = isodensidad_all(10, 100, barra, disco, bulge, halo)
+    curva = isodensidad_all(15, 100, barra, disco, bulge, halo)
     curva = np.array(curva).transpose()
     plt.gca().set_aspect('equal')
     for i in [0,1]:
