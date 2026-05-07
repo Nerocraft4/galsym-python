@@ -8,17 +8,18 @@ import numpy as np
 import os
 from maths.puntequil import puntequil
 from maths.helpers import matriz_rk78
-from maths.algebra import eigs
 from maths.param_continuation import delta_cont
-#from maths.DF import DF
+from maths.aproxlineal import aproxlineal
+from maths.DF import DF
 
 from utils.initializer import initialize
 from utils import namer
-#from utils.namers import name_datadir, name_ini_guess_pequi_file #rename to make more compact
 from utils.io import read_ini_peqs_file
+from utils import plots
+
 from models.other import centro_masas_halo, derFdelta
 
-from utils import plots
+from numpy.linalg import eig
 
 #initialize "globals"
 base = "." #TODO cuidado amb això, potser automatitzar?
@@ -93,24 +94,29 @@ for indxd in range(len(xd)):
 
     '''Càlcul de punts d'equilibri a partir d'intent inicial'''
     peqs = puntequil(ini_peqs,barra,disco,bulge,halo,parsb,options)
-    eigens = [eigs(peqLi,params) for peqLi in peqs]
-
-    continuations = []
-    func2vals = []
-    for peq in peqs:
-            continuation, func2val = delta_cont(initial_point=peq[1], initial_delta=xdbulge, 
-                                increment_delta=0.01, continuation_length=3, params=params)
-            continuations.append(continuation)
-            func2vals.append(func2val)
+    DFpeqs = [DF(peqLi[1],barra,disco,bulge,halo,parsb) for peqLi in peqs]
+    eigens = [eig(DFpeq) for DFpeq in DFpeqs]
     
-    plots.param_contin_all(continuations,func2vals)
-
-    plots.isopoten(rad=10,dens=100,params=params)
-    plots.isodensi(rad=10,dens=100,params=params)
-    plots.isodensi_parts(rad=15,dens=100,params=params)
-    
-    
+    if False:
+        continuations = []
+        func2vals = []
+        for peq in peqs:
+                continuation, func2val = delta_cont(initial_point=peq[1], initial_delta=xdbulge, 
+                                    increment_delta=0.01, continuation_length=3, params=params)
+                continuations.append(continuation)
+                func2vals.append(func2val)
         
+        plots.param_contin_all(continuations,func2vals)
+    
+    if False:
+        plots.isopoten(rad=10,dens=100,params=params)
+        plots.isodensi(rad=10,dens=100,params=params)
+        plots.isodensi_parts(rad=15,dens=100,params=params)
+    
+    #TODO ESTABILIDAD DE CADA PUNTO
+    
+    aproxlineal(xvec=peqs[3][1],xkk=3e-2,params=params)
+    
 
 
 

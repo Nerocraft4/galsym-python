@@ -2,8 +2,9 @@ Curent:
     - will try to limit movement distance, or refine somehow
         - start by taking smaller steps and maybe checking values in between, to find the best one w newton?
     - will for sure try to implement Keller Pseudo-Arc Length KPAL algorithm
-
+    - following main.m, still need to do integration in time, hope it works out well?
 Done:
+    0.6 Completed aproxlineal.py function, seems to work well
     0.5 Refactored most of the main.py file and created many secondary functions
         - val2func's plot is broken tho
     0.4 isopotential and isodensity plots successfully implemented, now using a colormap instead of a set of level curves. 
