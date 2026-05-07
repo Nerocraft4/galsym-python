@@ -167,3 +167,5 @@ def isodensidad_all(radius, idim, barra, disco, bulge, halo):
 
 
 
+
+

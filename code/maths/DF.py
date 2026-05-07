@@ -28,37 +28,6 @@ def DF(xvec,barra,disco,bulge,halo,parsb):
     pxz=pxzd+pxzb+pxzbl+pxzh
     pyz=pyzd+pyzb+pyzbl+pyzh
 
-    '''
-    a = OMEGA2*Q2*Q2+pxy
-    b = OMEGA2*Q1*Q2+pxz
-    c = 2*omega*Q2
-    d = OMEGA2+pyz
-    e = 2*omega*Q1
-    f = OMEGA2*Q1*Q1+pzz 
-
-    df =[[0,  0,  0,  1,  0,  0],
-         [0,  0,  0,  0,  1,  0],
-         [0,  0,  0,  0,  0,  1],
-         [a,  pxy,b,  0,  c,  0],
-         [pxy,d,  pyz,-c, 0, -e],
-         [b,  pyz,f,  0,  e,  0]]
-
-    a = OMEGA2*Q2*Q2-pxy
-    b = OMEGA2*Q1*Q2-pxz
-    c = 2*omega*Q2
-    d = OMEGA2-pyz
-    e = 2*omega*Q1
-    f = OMEGA2*Q1*Q1-pzz 
-
-    df =[[0,    0,    0,    1,  0,  0],
-         [0,    0,    0,    0,  1,  0],
-         [0,    0,    0,    0,  0,  1],
-         [a,    -pxy, b,    0,  c,  0],
-         [-pxy, d,   -pyz,  -c, 0, -e],
-         [b,    -pyz, f,    0,  e,  0]]
-
-    print("peq",xvec)
-    '''
     A = np.zeros([6,6])
     A[0][3]=1
     A[1][4]=1

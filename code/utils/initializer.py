@@ -2,7 +2,7 @@ from .classes import Barra, Halo, Bulge, Disk, ParsB
 from maths.helpers import elint
 import numpy as np
 
-def initializer(arxi):
+def initialize(arxi):
     '''
     arxi: file where the data for the Bar, Halo, Bulge and Disk is stored
     '''
