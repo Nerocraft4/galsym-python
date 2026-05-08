@@ -20,15 +20,16 @@ from utils import plots
 from models.other import centro_masas_halo, derFdelta
 
 from numpy.linalg import eig
+from numpy import save, load
 
 #initialize "globals"
 base = "." #TODO cuidado amb això, potser automatitzar?
-inputfolder = base+"/input/"
-data = base+"/datos/"
+inputfolder = base+"/input"
+data = base+"/datos"
 fil = "1" #tbd
 col = "3" #tbd
-arxiu = "_Om"+fil+col+".dat"
-arxi = inputfolder+"modMiyFer"+arxiu
+arxiu = "_Om"+fil+col
+arxi = inputfolder+"/"+"modMiyFer"+arxiu+".dat"
 barra, disco, bulge, halo, parsb = initialize(arxi)
 
 #configure options for aproxlineal, 
@@ -75,7 +76,7 @@ for indxd in range(len(xd)):
     
     params = [barra, disco, bulge, halo, parsb]
 
-    mydatadir = data + namer.datadir(xydhalo, xdbulge, halo, bulge)
+    mydatadir = data + "/" + namer.datadir(xydhalo, xdbulge, halo, bulge)
     
     try:
         print("creating new data directory in",mydatadir)
@@ -86,7 +87,7 @@ for indxd in range(len(xd)):
     try:
         guess_pequi_file = namer.ini_guess_pequi_file(halo,xdbulge)
         print("reading initial guess for eq points from",guess_pequi_file)
-        ini_peqs = read_ini_peqs_file(inputfolder+guess_pequi_file)
+        ini_peqs = read_ini_peqs_file(inputfolder+"/"+guess_pequi_file)
     except:
         print("no initial guess for eq. points provided for this case")
 
@@ -113,12 +114,18 @@ for indxd in range(len(xd)):
         plots.isodensi(rad=10,dens=100,params=params)
         plots.isodensi_parts(rad=15,dens=100,params=params)
     
-    #TODO ESTABILIDAD DE CADA PUNTO
+    #TODO ESTABILIDAD DE CADA PUNTO, però això no calcula la estabilitat, no?
+    punt = 3 #provant aquest
+    xkk=3e-2
+    paprox,times = aproxlineal(xvec=peqs[punt][1],xkk=xkk,params=params)
     
-    aproxlineal(xvec=peqs[3][1],xkk=3e-2,params=params)
+    #guardar arxiu corresponent al número de punt i a l'xkk que s'ha pres
+    #guardem temps i punts per separat
+    arxol = namer.arxol(punt,xkk,arxiu)
+    path = mydatadir + "/" + arxol
+    save(path+"_ts",times)
+    save(path+"_ps",paprox)
     
-
-
 
 
 

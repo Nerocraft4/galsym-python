@@ -67,9 +67,11 @@ def aproxlineal(xvec,xkk,params):
         ts.append(t)
         paprox.append(copy.deepcopy(x))
         t = t+h
-    print(paprox)
     paprox = array(paprox)[1:].transpose()
     import matplotlib.pyplot as plt
     plt.scatter(paprox[0],paprox[1])
     plt.show()
+    ts = array(ts)
+    return paprox, ts
+
 

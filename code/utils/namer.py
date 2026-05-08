@@ -1,3 +1,5 @@
+from numpy import round
+
 '''
 Set of functions to name files and folders
 '''
@@ -22,4 +24,13 @@ def ini_guess_pequi_file(halo,xdbulge):
          '_yd_',str(halo.yd),
          '_bulgexd_',str(xdbulge)]
     a = "".join(a).replace(".","_")+".dat"
+    return a
+
+def arxol(punt,xkk,fix):#maybe rename
+    a = "orlinL"
+    a+= str(punt+1)
+    a+= "_xkk"
+    a+= str(round(xkk,2)).replace(".","_")
+    a+= "_"
+    a+= fix
     return a
