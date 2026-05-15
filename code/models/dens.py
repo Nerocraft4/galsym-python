@@ -91,12 +91,13 @@ def halo(x,y,z,halo):
     dens = T1*(T2**(-2.5))
     return dens
 
-def efectiva(x,y,z,mbarra,mdisk,mbulge,mhalo):
+def efectiva(x,y,z,galparams):
     '''
     Returns the "effective" density at a given x,y,z point.
     Originally called "densidad.m" in the legacy code,
     renamed for consistency with pot.efectivo
     '''
+    [mbarra,mdisk,mbulge,mhalo,parsb] = galparams
     DENSB = bar(x,y,z,mbarra)      #Densidad de barra Ferrers
     DENSD = disk(x,y,z,mdisk)     #Densidad de Miyamoto
     DENSBL = bulge(x,y,z,mbulge)   #Densidad del bulge esferico de Plummer 

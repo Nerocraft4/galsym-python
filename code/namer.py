@@ -28,7 +28,7 @@ def ini_guess_pequi_file(params: list) -> str:
     a = "".join(a).replace(".","_")+".dat"
     return a
 
-def arxol(punt: int, xkk: float, fix: str) -> str:#maybe rename
+def arxol(int punt,float xkk, str fix) -> str:#maybe rename
     a = "orlinL"
     a+= str(punt+1)
     a+= "_xkk"

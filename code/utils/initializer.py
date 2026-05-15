@@ -1,10 +1,16 @@
 from .classes import Barra, Halo, Bulge, Disk, ParsB
 from maths.helpers import elint
 import numpy as np
+from .io import pack_galparams
 
-def initialize(arxi):
+def initialize(arxi: str) -> dict:
     '''
-    arxi: file where the data for the Bar, Halo, Bulge and Disk is stored
+    In charge of initializing galactic parameters.
+    Input:
+        arxi: file where the data for the Bar, Halo, Bulge and Disk is stored
+    Output:
+        galparams: dictionary conatining all information from galactic parameters
+            {"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
     '''
     data = ""
     with open(file=arxi,mode="r") as f:
@@ -82,4 +88,5 @@ def initialize(arxi):
                   V000,V100,V001,V010,V110,V101,V011,V200,V020,V002,
                   V111,V210,V201,V120,V021,V102,V012,V300,V030,V003)
 
-    return barra, disco, bulge, halo, parsb
+    galparams = pack_galparams([barra,disco,bulge,halo,parsb])
+    return galparams

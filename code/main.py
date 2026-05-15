@@ -7,17 +7,18 @@ global barra, disco, bulge, halo, parsb, ctes_rk78, sect, sectx
 import numpy as np
 import os
 from maths.puntequil import puntequil
-from maths.helpers import matriz_rk78
-from maths.param_continuation import delta_cont
+from maths.helpers import matriz_rk78,character_of_eq_point
+from maths.param_continuation import delta_cont #TODO DEPRECATED?
+from maths.param_continuation_grid import pcg
 from maths.aproxlineal import aproxlineal
 from maths.DF import DF
+from maths.refinamiento import refinamiento
 
 from utils.initializer import initialize
-from utils import namer
-from utils.io import read_ini_peqs_file
-from utils import plots
+from utils import namer, plots
+from utils.io import read_ini_peqs, make_data_dir, extract_galparams
 
-from models.other import centro_masas_halo, derFdelta
+from models.other import setup
 
 from numpy.linalg import eig
 from numpy import save, load
@@ -26,110 +27,89 @@ from numpy import save, load
 base = "." #TODO cuidado amb això, potser automatitzar?
 inputfolder = base+"/input"
 data = base+"/datos"
-fil = "1" #tbd
-col = "3" #tbd
+fil = "1" #TODO llegir de txt?
+col = "3" #TODO idem
 arxiu = "_Om"+fil+col
 arxi = inputfolder+"/"+"modMiyFer"+arxiu+".dat"
-barra, disco, bulge, halo, parsb = initialize(arxi)
-
-#configure options for aproxlineal, 
-options = {"verbose":True,"tolerance":1e-8,"maxiter":300} 
+galparams = initialize(arxi)#{"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
+options = {"verbose":True,"tolerance":1e-8,"maxiter":500} #configure options for aproxlineal, 
 #TODO maybe set from a .config file
 #TODO verbose: False currently breaks puntequil? 
-#llegir valors de la barra i del disc a partir d'un .txt
 
-xd = [0.1] #make sure it is a list
-xdhalo = 0 
-ydhalo = 0 #max -4
-# o desplaçar halo en la direcció contraria a bulge
-xydhalo = [xdhalo,ydhalo]
+#TODO llegir valors de la barra i del disc a partir d'un .txt
+despbar = [0,0]
+despdis = [0,0]
+despbul = [0,0]
+desphal = [0,0]
+displacements = [despbar,despdis,despbul,desphal]  
 
-for indxd in range(len(xd)):
-    xdbulge = xd[indxd] #REFORMAT THIS S
+galparams = setup(galparams,displacements)
+
+make_data_dir(data=data,params=galparams)
+
+ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria estar dins de pcg
+
+'''Grid punts equilibri'''
+if True:
+    #TODO moviments barra.xd es trenquen
+    #cuidado potencial pot ser que tema epsilon estigui malament
+    pcs = pcg(whichobject= "bulge", whichparam= "yd",
+          paramfrom= 0, paramto= 2.3, cjacfrom= 0, cjacto= 1, density= 100, 
+          ini_peqs= ini_peqs, galparams= galparams, solveroptions= options)   
+
+'''Càlcul de punts d'equilibri a partir d'intent inicial
+peqs = puntequil(ini_peqs,galparams,options)
+
+DFpeqs = [DF(peqLi,barra,disco,bulge,halo,parsb) for peqLi in peqs]
+eigens = [eig(DFpeq) for DFpeq in DFpeqs]
+
+for i in range(len(eigens)):
+    eig = eigens[i]
+    print(i+1,eig.eigenvalues)
+    character_of_eq_point(eig)
+'''
+
+if False:
+    continuations = []
+    func2vals = []
+    for peq in peqs:
+            continuation, func2val = delta_cont(initial_point=peq, initial_delta=xdbulge, 
+                                increment_delta=0.01, continuation_length=3, params=galparams)
+            continuations.append(continuation)
+            func2vals.append(func2val)
     
-    [xcm, ycm, zcm] = centro_masas_halo(xdbulge,xydhalo,barra,disco,bulge,halo)
-    print(xcm,ycm,zcm)
+    plots.param_contin_all(continuations,func2vals)
 
-    #PER A TOTA AQUESTA SECCIÓ, comentar i replantejar codi
-    # tot això es podria fer amb vectors directament, tipus barra.db = despbar
-    despbar = [-xcm,-ycm] 
-    #WARN 3Dim, mirar orientacions que siguin correctes
-    print(despbar)
-    barra.xd = despbar[0]
-    barra.yd = despbar[1]
+if True:
+    galparamslist = extract_galparams(galparams)
+    plots.isopoten_cont(rad=8,dens=100,nlines=100, galparams=galparamslist)
+    #plots.isopoten(rad=10,dens=100,galparams=galparamslist)
+    plots.isodensi_cont(rad=15,dens=100,nlines=50, galparams=galparamslist)
+    #plots.isodensi(rad=10,dens=100,galparams=galparamslist)
+    #plots.isodensi_parts(rad=15,dens=100,galparams=galparamslist)
 
-    #idem #TODO make sure the displacement is consistent in 3D
-    #TODO density curves will help check if this translations are correct
-    despesf = [xdbulge,0]
-    bulge.xd = barra.xd + despesf[0]
-    bulge.yd = barra.yd + despesf[1]
-    
-    #idem
-    despdisc = [0,0]
-    disco.xd = despdisc[0]
-    disco.yd = despdisc[1]
+#TODO ESTABILIDAD DE CADA PUNTO, però això no calcula la estabilitat, no?
+punt = 3 #provant aquest
+xkk = 3e-2
+paprox,times = aproxlineal(xvec=peqs[punt][1],xkk=xkk,params=galparams) #TODO ver alternativa codi Josep
 
-    #idem
-    desphalo = xydhalo #REW var names and repetition
-    halo.xd = desphalo[0]
-    halo.yd = desphalo[1]
-    
-    params = [barra, disco, bulge, halo, parsb]
+#plt.scatter(paprox[0],paprox[1],c=times)
 
-    mydatadir = data + "/" + namer.datadir(xydhalo, xdbulge, halo, bulge)
-    
-    try:
-        print("creating new data directory in",mydatadir)
-        os.makedirs(mydatadir)
-    except:
-        print("directory already exists")
-    
-    try:
-        guess_pequi_file = namer.ini_guess_pequi_file(halo,xdbulge)
-        print("reading initial guess for eq points from",guess_pequi_file)
-        ini_peqs = read_ini_peqs_file(inputfolder+"/"+guess_pequi_file)
-    except:
-        print("no initial guess for eq. points provided for this case")
+#guardar arxiu corresponent al número de punt i a l'xkk que s'ha pres
+#guardem temps i punts per separat
+arxol = namer.arxol(punt,xkk,arxiu)
+path = mydatadir + "/" + arxol
+save(path+"_ts",times)
+save(path+"_ps",paprox)
 
-    ctes_rk78 = matriz_rk78()
-
-    '''Càlcul de punts d'equilibri a partir d'intent inicial'''
-    peqs = puntequil(ini_peqs,barra,disco,bulge,halo,parsb,options)
-    DFpeqs = [DF(peqLi[1],barra,disco,bulge,halo,parsb) for peqLi in peqs]
-    eigens = [eig(DFpeq) for DFpeq in DFpeqs]
-    
-    if False:
-        continuations = []
-        func2vals = []
-        for peq in peqs:
-                continuation, func2val = delta_cont(initial_point=peq[1], initial_delta=xdbulge, 
-                                    increment_delta=0.01, continuation_length=3, params=params)
-                continuations.append(continuation)
-                func2vals.append(func2val)
-        
-        plots.param_contin_all(continuations,func2vals)
-    
-    if False:
-        plots.isopoten(rad=10,dens=100,params=params)
-        plots.isodensi(rad=10,dens=100,params=params)
-        plots.isodensi_parts(rad=15,dens=100,params=params)
-    
-    #TODO ESTABILIDAD DE CADA PUNTO, però això no calcula la estabilitat, no?
-    punt = 3 #provant aquest
-    xkk=3e-2
-    paprox,times = aproxlineal(xvec=peqs[punt][1],xkk=xkk,params=params)
-    
-    #guardar arxiu corresponent al número de punt i a l'xkk que s'ha pres
-    #guardem temps i punts per separat
-    arxol = namer.arxol(punt,xkk,arxiu)
-    path = mydatadir + "/" + arxol
-    save(path+"_ts",times)
-    save(path+"_ps",paprox)
-    
+#TODO currently working on refinamiento
+#refinamiento(pequil=peqs[punt][1],paprox=paprox,times=times,
+#             params=params,CAMP="",CJAC="",GRADC="",SECCIO="",GRADS="")
 
 
 
 
+ctes_rk78 = matriz_rk78()
 
 
 

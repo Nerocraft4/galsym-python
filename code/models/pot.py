@@ -109,7 +109,8 @@ def halo(x,y,z,halo):
     phi = -GM/rad
     return phi
 
-def efectivo(x,y,z,mbarra,mdisco,mbulge,mhalo,parsb):
+def efectivo(x,y,z,galparams):
+    [mbarra,mdisco,mbulge,mhalo,parsb] = galparams
     eps = mbarra.eps
     omega = mbarra.omega
     Q1 = sin(eps)

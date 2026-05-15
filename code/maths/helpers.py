@@ -95,14 +95,55 @@ def xlmbd(X,Y,Z,A,B,C):
         XLA = U + V - C2;
     return XLA
 
+from numpy import real, imag
+
+def character_of_eq_point(eigen):
+    '''
+    Function to determine character of equilibrium points given their
+    eigenvalues. Counts how many eigenvalues are of each type.
+    '''
+    tol=1e-15
+    evals = eigen.eigenvalues
+    neg = 0 #negative real (attractor)
+    pos = 0 #positive real (repellor)
+    cen = 0 #center manifold
+    mix = 0 #mixed
+    com = 0 #purely imaginary
+    types = []
+    for val in evals:
+        if abs(imag(val))<tol:
+            if real(val)<-tol:
+                neg+=1
+                types.append["neg"]
+            elif real(val)>tol:
+                pos+=1
+                types.append["pos"]
+            else:
+                cen+=1
+                types.append["cen"]
+        else:
+            if abs(real(val))<tol:
+                com+=1
+                types.append["com"]
+            else:
+                mix+=1
+                types.append["mix"]
+    if neg>0 and pos>0:
+        if neg==pos:
+            print("Saddle") #TODO mirar teoria
+        else:
+            print("unpaired real eigenvalues")
+    if com%2!=0: print("unpaired purely imaginary eigenvalues")
+    print(neg,pos,cen,mix,com)
+
 from models import pot #TODO maybe moure adalt
 
-def isopotencial(radius, idim, barra, disco, bulge, halo, parsb):
+def isopotencial(radius: float, idim: int, galparams: list) -> list:
     '''
     Inputs:
         - radius:           area to be sampled, in kiloparsecs
         - idim:             sample points in the area
-        - model constants:  barra, disco, bulge, halo, parsb, etc
+        - galparams:        barra, disco, bulge, halo, parsb
     Outputs:
         - idim^2 x 4 list ([[x,y,z,pot],[x,y,z,pot],...])
     '''
@@ -113,18 +154,18 @@ def isopotencial(radius, idim, barra, disco, bulge, halo, parsb):
             x = -radius+step*i
             y = -radius+step*j
             z = 0
-            potef = pot.efectivo(x,y,z,barra, disco, bulge, halo, parsb)
+            potef = pot.efectivo(x,y,z,galparams)
             curva.append([x,y,z,potef])
     return curva
 
 from models import dens #TODO maybe moure adalt
 
-def isodensidad(radius, idim, barra, disco, bulge, halo):
+def isodensidad(radius: float, idim: int, galparams: list) -> list:
     '''
     Inputs:
         - radius:           area to be sampled, in kiloparsecs
         - idim:             sample points in the area
-        - model constants:  barra, disco, bulge, halo, parsb, etc
+        - galparams:        barra, disco, bulge, halo, parsb
     Outputs:
         - idim^2 x 4 list ([[x,y,z,dens],[x,y,z,dens],...])
     '''
@@ -135,29 +176,30 @@ def isodensidad(radius, idim, barra, disco, bulge, halo):
             x = -radius+step*i
             y = -radius+step*j
             z = 0
-            densef = dens.efectiva(x,y,z,barra, disco, bulge, halo)
+            densef = dens.efectiva(x,y,z,galparams)
             curva.append([x,y,z,densef])
     return curva
 
 
-def isodensidad_all(radius, idim, barra, disco, bulge, halo):
+def isodensidad_all(radius: float, idim: int, galparams: list) -> list:
     '''
     Original "isodensidad.m" function, that returns all densities
     Inputs:
         - radius:           area to be sampled, in kiloparsecs
         - idim:             sample points in the area
-        - model constants:  barra, disco, bulge, halo, parsb, etc
+        - galparams:        barra, disco, bulge, halo, parsb
     Outputs:
         - idim^2 x 8 list ([[x,y,z,dens,densbar,densdisk,densbulge,denshalo],[x,y,z,dens,...],...])
     '''
     step = 2*radius/(1.0*idim)
     curva = []
+    [barra, disco, bulge, halo, parsb] = galparams
     for i in range(idim):
         for j in range(idim):
             x = -radius+step*i
             y = -radius+step*j
             z = 0
-            densef    = dens.efectiva(x,y,z,barra, disco, bulge, halo)
+            densef    = dens.efectiva(x,y,z,galparams)
             densbar   = dens.bar(x,y,z,barra)
             densdisk  = dens.disk(x,y,z,disco)
             densbulge = dens.bulge(x,y,z,bulge)

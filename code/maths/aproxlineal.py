@@ -43,7 +43,7 @@ def aproxlineal(xvec,xkk,params):
     
     paprox = [[xvec[0],xvec[1],xvec[2],0,0,0]] #programa original posa "epsilon" com a primer valor de paprox, meh
 
-    m=24 #?
+    m=24 #TODO segurament calen menys punts
 
     h = (tf-ti)/m
     t = ti
@@ -57,21 +57,11 @@ def aproxlineal(xvec,xkk,params):
         x[3] = -xw*xkk*sin(xw*t)
         x[4] = xw*Q3*xkk*cos(xw*t)
         x[5] = -xw*S3*xkk*sin(xw*t) 
-        '''
-        if (i == m+1)
-            for j=1:6
-                xm(j) = -1
-            end
-            paprox = [paprox -1, xm] #i això simplement posa -1 al final de tot, zzz
-        '''
-        ts.append(t)
+
         paprox.append(copy.deepcopy(x))
-        t = t+h
-    paprox = array(paprox)[1:].transpose()
-    import matplotlib.pyplot as plt
-    plt.scatter(paprox[0],paprox[1])
-    plt.show()
-    ts = array(ts)
+        ts.append(t)
+        t = t+h        
+    paprox = array(paprox)[1:]
     return paprox, ts
 
 
