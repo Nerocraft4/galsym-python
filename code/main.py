@@ -50,12 +50,16 @@ make_data_dir(data=data,params=galparams)
 ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria estar dins de pcg
 
 '''Grid punts equilibri'''
+
+print("\n\n\n")
+
 if True:
-    #TODO moviments barra.xd es trenquen
+    #TODO #TODO #TODO estic d'alguna manera, fent això malament: més passos -> pitjor. 
     #cuidado potencial pot ser que tema epsilon estigui malament
     pcs = pcg(whichobject= "bulge", whichparam= "yd",
-          paramfrom= 0, paramto= 2.3, cjacfrom= 0, cjacto= 1, density= 100, 
-          ini_peqs= ini_peqs, galparams= galparams, solveroptions= options)   
+          paramfrom= 0, paramto= 3, cjacfrom= 0, cjacto= 1, density= 5, 
+          ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
+          solveroptions= options, point_evolution=False)   
 
 '''Càlcul de punts d'equilibri a partir d'intent inicial
 peqs = puntequil(ini_peqs,galparams,options)

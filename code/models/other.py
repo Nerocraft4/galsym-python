@@ -98,7 +98,7 @@ def centro_masas_halo(xydbulge,xydhalo,galparams: list) -> list:
     centrob = np.array([0,0,0])
 
     mesf = bulge.GM
-    centroesf = np.array([xydbulge[0],0,0])
+    centroesf = np.array([xydbulge[0],xydbulge[1],0])
 
     mh = halo.GM
     centroh = np.array([xydhalo[0],xydhalo[1],0])
@@ -116,11 +116,12 @@ def update_displacement(obj: object, disp: list):
 #TODO segurament moure a initializer
 from utils.io import extract_galparams, pack_galparams
 def setup(galparams: dict, displacements: list) -> dict:
+    print("Setting up system")
     [barra, disco, bulge, halo, parsb] = extract_galparams(galparams)
     [despbar,despdis,despbul,desphal] = displacements
     
     [xcm, ycm, zcm] = centro_masas_halo(despbul,desphal,[barra, disco, bulge, halo, parsb])
-    print("Centro masas halo",xcm,ycm,zcm)
+    print("Initial step: Centro masas halo",xcm,ycm,zcm)
 
     despbar = [-xcm,-ycm]
     despbul = [despbul[0]-xcm,despbul[1]-ycm]
@@ -131,14 +132,38 @@ def setup(galparams: dict, displacements: list) -> dict:
     update_displacement(halo,desphal)
     return galparams
 
-def update(galparams: dict) -> None:
-    print("updating parameters and adjusting to new center of masses")
+def update(galparams: dict, displacements: list, 
+           whichobject: str, whichparam: str, p: float) -> None:
+    #print("updating parameters and adjusting to new center of masses")
     [barra, disco, bulge, halo, parsb] = extract_galparams(galparams)
-    [despbar,despdis,despbul,desphal] = [[barra.xd,barra.yd],[disco.xd,disco.yd],
-                                        [bulge.xd,bulge.yd],[halo.xd,halo.yd]]
+    [despbar,despdis,despbul,desphal] = displacements
+
+    if whichobject == "halo":
+        if whichparam == "xd":
+            desphal[0] = p
+        elif whichparam == "yd":
+            desphal[1] = p
+        elif whichparam == "zd":
+            desphal[2] = p
+        else:
+            print("Continuation for object",whichobject,"param",whichparam,"not yet implemented")
+            return
+    elif whichobject == "bulge":
+        if whichparam == "xd":
+            despbul[0] = p
+        elif whichparam == "yd":
+            despbul[1] = p
+        elif whichparam == "zd":
+            despbul[2] = p
+        else:
+            print("Continuation for object",whichobject,"param",whichparam,"not yet implemented")
+            return
+    else:
+        print("Continuation for object",whichobject,"param",whichparam,"not yet implemented")
+        return
 
     [xcm, ycm, zcm] = centro_masas_halo(despbul,desphal,[barra, disco, bulge, halo, parsb])
-    print("Centro masas halo",xcm,ycm,zcm)
+    #print("Centro masas halo",xcm,ycm,zcm)
 
     despbar = [-xcm,-ycm]
     despbul = [despbul[0]-xcm,despbul[1]-ycm]
@@ -147,7 +172,7 @@ def update(galparams: dict) -> None:
     update_displacement(bulge,despbul)
     update_displacement(disco,despdis)
     update_displacement(halo,desphal)
-    #return galparams 
+    return
 
 def CTJAC(xvec: NDArray,pvec: NDArray,params: list) -> float:
     '''

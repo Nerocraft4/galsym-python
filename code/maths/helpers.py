@@ -176,7 +176,7 @@ def isodensidad(radius: float, idim: int, galparams: list) -> list:
             x = -radius+step*i
             y = -radius+step*j
             z = 0
-            densef = dens.efectiva(x,y,z,galparams)
+            densef = dens.efectiva(x,y,z,galparams) #TODO changed
             curva.append([x,y,z,densef])
     return curva
 
