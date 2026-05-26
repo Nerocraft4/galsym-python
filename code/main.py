@@ -47,8 +47,8 @@ ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria est
 print("\n\n\n")
 
 if True:
-    pcs = pcg(whichobject= "bulge", whichparam= "xd",
-          paramfrom= 0, paramto= 7, cjacfrom= 0, cjacto= 1, density= 50, 
+    pcs = pcg(whichobject= "halo", whichparam= "yd",
+          paramfrom= 0, paramto= -6, cjacfrom= 0, cjacto= 1, density= 50, 
           ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
           solveroptions= options, point_evolution=True)   
 
