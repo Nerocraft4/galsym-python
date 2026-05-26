@@ -15,7 +15,7 @@ def read_ini_peqs(inputdir: str, params: dict) -> NDArray[np.float_]:
     except:
         print("Initial guess for eq points file not found")
         print("Reading default points. Might not converge")
-        with open(file="DEFAULT", mode="r") as f:
+        with open(file=inputdir+"/"+"pequi_DEFAULT.dat", mode="r") as f:
             ini_peqs_data = f.readlines()
     ini_peqs_data = [x.strip().split(" ") for x in ini_peqs_data]
     ini_peqs = []

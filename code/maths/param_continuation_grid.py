@@ -25,7 +25,6 @@ def pcg(whichobject: str, whichparam: str,
     obj = galparams[whichobject]
 
     #first compute eq points corresponding to paramlist[1], using ini_peqs as an initial guess
-    #setattr(obj, whichparam, paramlist[1])
     update(galparams,displacements,whichobject,whichparam,paramlist[1])
     new_peqs = puntequil(ini_peqs,extract_galparams(galparams),solveroptions)
     pequils.append(copy.deepcopy(new_peqs))
@@ -47,15 +46,17 @@ def pcg(whichobject: str, whichparam: str,
     if point_evolution:
         pcs = copy.deepcopy(pequils)
         pcs = pcs.transpose([1,2,0])
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
         for p in pcs:
-            plt.scatter(p[0],p[1],s=1,c=paramlist)
+            ax.scatter(p[0][1:],p[1][1:],p[2][1:],s=1,c=paramlist[1:])
         plt.show()
         for i in range(5):
             p = pcs[i]
-            plt.scatter(paramlist,p[0],s=1,c=paramlist)
+            plt.scatter(paramlist[1:],p[0][1:],s=1,c=paramlist[1:])
             plt.xlabel("Paràmetre")
             plt.ylabel("Coordenada X del punt Lagrangià")
-            plt.title(str("Evolució de L"+str(i+1)+" versus xdbulge"))
+            plt.title(str("Evolució de L"+str(i+1)+" versus "+whichobject+" "+whichparam))
             plt.show()
     return pequils
 

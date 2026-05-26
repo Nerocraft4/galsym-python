@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class Generic:
     xd: float           #x-displacement from center of masses
     yd: float           #y-displacement ""
+    zd: float           #z-displacement ""
     GM: float           #Mass times Grav constant (?)
 
 @dataclass

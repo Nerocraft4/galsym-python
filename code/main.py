@@ -31,17 +31,10 @@ fil = "1" #TODO llegir de txt?
 col = "3" #TODO idem
 arxiu = "_Om"+fil+col
 arxi = inputfolder+"/"+"modMiyFer"+arxiu+".dat"
-galparams = initialize(arxi)#{"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
+galparams, displacements = initialize(arxi)#{"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
 options = {"verbose":True,"tolerance":1e-8,"maxiter":500} #configure options for aproxlineal, 
 #TODO maybe set from a .config file
 #TODO verbose: False currently breaks puntequil? 
-
-#TODO llegir valors de la barra i del disc a partir d'un .txt
-despbar = [0,0]
-despdis = [0,0]
-despbul = [0,0]
-desphal = [0,0]
-displacements = [despbar,despdis,despbul,desphal]  
 
 galparams = setup(galparams,displacements)
 
@@ -54,8 +47,8 @@ ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria est
 print("\n\n\n")
 
 if True:
-    pcs = pcg(whichobject= "halo", whichparam= "yd",
-          paramfrom= 0, paramto= -4, cjacfrom= 0, cjacto= 1, density= 50, 
+    pcs = pcg(whichobject= "bulge", whichparam= "xd",
+          paramfrom= 0, paramto= 7, cjacfrom= 0, cjacto= 1, density= 50, 
           ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
           solveroptions= options, point_evolution=True)   
 

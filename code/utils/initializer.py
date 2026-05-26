@@ -3,7 +3,7 @@ from maths.helpers import elint
 import numpy as np
 from .io import pack_galparams
 
-def initialize(arxi: str) -> dict,list:
+def initialize(arxi: str) -> [dict,list]:
     '''
     In charge of initializing galactic parameters.
     Input:
@@ -12,30 +12,36 @@ def initialize(arxi: str) -> dict,list:
         galparams: dictionary conatining all information from galactic parameters
             {"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
         displacements: list of 3D displacements of each part of the galaxy
+    Potential upgrades: eventually upgrade to a JSON file please xd
     '''
     data = ""
     with open(file=arxi,mode="r") as f:
         data = f.readlines()
     data = [d.strip() for d in data]
-    xd,yd = [0,0] #default position
+
+    #get displacements for all values
+    dbar = [float(x) for x  in data[-4].split(" ")[:3]]
+    ddisk = [float(x) for x  in data[-3].split(" ")[:3]]
+    dbulge = [float(x) for x  in data[-2].split(" ")[:3]]
+    dhalo = [float(x) for x  in data[-1].split(" ")[:3]]
 
     #start by initializing the Bar
-    a,b,c,GM = [float(x) for x in data[0].split(" ")]
-    omega = float(data[1].split(" ")[0])
-    eps = float(data[3].split(" ")[1])
-    barra = Barra(xd=0,yd=0,a=a,b=b,c=c,GM=GM,omega=omega,eps=eps)
+    a,b,c,GM = [float(x) for x in data[1].split(" ")[:4]]
+    omega = float(data[2].split(" ")[0])
+    eps = float(data[4].split(" ")[1])
+    barra = Barra(xd=dbar[0],yd=dbar[1],zd=dbar[2],a=a,b=b,c=c,GM=GM,omega=omega,eps=eps)
 
     #then the Disk
-    a,b,GM = [float(x) for x in data[2].split(" ")]
-    disco = Disk(xd=0,yd=0,a=a,b=b,GM=GM)
+    a,b,GM = [float(x) for x in data[3].split(" ")[:3]]
+    disco = Disk(xd=ddisk[0],yd=ddisk[1],zd=ddisk[2],a=a,b=b,GM=GM)
 
     #the Bulge
-    b, GM = [float(x) for x in data[4].split(" ")]
-    bulge = Bulge(xd=0,yd=0,b=b,GM=GM)
+    b, GM = [float(x) for x in data[5].split(" ")[:2]]
+    bulge = Bulge(xd=dbulge[0],yd=dbulge[1],zd=dbulge[2],b=b,GM=GM)
 
     #and the Halo
-    b, GM = [float(x) for x in data[5].split(" ")]
-    halo = Halo(xd=0,yd=0,b=b,GM=GM)
+    b, GM = [float(x) for x in data[6].split(" ")[:2]]
+    halo = Halo(xd=dhalo[0],yd=dhalo[1],zd=dhalo[2],b=b,GM=GM)
 
     #ParsB section
     US3=1/3;
@@ -90,4 +96,4 @@ def initialize(arxi: str) -> dict,list:
                   V111,V210,V201,V120,V021,V102,V012,V300,V030,V003)
 
     galparams = pack_galparams([barra,disco,bulge,halo,parsb])
-    return galparams
+    return galparams, [dbar,ddisk,dbulge,dhalo]
