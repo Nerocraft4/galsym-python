@@ -163,17 +163,135 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     % C                      D'ENTRADA (per ex IFEM erroni).
     % C                 0 -> MATRIU DE SISTEMA NO SINGULAR
     % C***********************************************************************
-    '''
+   '''
     piterop = 0
     tempsit = 0
     xnorms = 0
     xnorm2s = 0
     ind = 0
-    per2 = 0    
+    per2 = 0 
+
+    ind = 0;
+    piterop = []
+    tempsit = 0
+    xnorms = 0
+    xnorm2s = 0
+
+    nmax = 1000
+    tolnw = 1e-13
+    hmin = 1e-7
+    hmax = 5e-2
+    dtmax = 500
+'''
+    assert n*np+2 > nmax, "iterop: parametro nmax pequeno. Se necesita: n*np+2"
+    
+    if ifem == 0:
+        ne = n*np;
+        nc = n*np;
+    elif ifem==1 or ifem==2:
+        ne = n*np+1
+        nc = n*np
+    elif ifem == 3:
+        ne = n*np+2
+        nc = ne
+    else:
+        'iterop: no se que hacer! ifem = ',ifem
+        ind = 1;
+    return
+
+# Inicializamos matriz DF y vector F a cero
+    df = zeros(ne,nc); 
+    f = zeros(1,ne);
+
+    # Llenamos la matriz DF y el vector F
+    [df2,f2,inddf,per2] = ompledf(df,nmax,f,xkk,n,ne,np,temps,per,CAMP,CJAC,GRADC,SECCIO,GRADS,ifem,tolnw,hmin,hmax,dtmax);
+    df = df2;
+    f = f2;
+    per = per2;
+    if inddf == 1
+        print('iterop: demasiado tiempo integrando los puntos')
+        ind = 1;
+        return;
+
+#TODO
+if inddf == 2
+    'iterop: demasiado tiempo para refinar la seccion'
+    ind = 1;
+    return;
+end
+
+% Calculo de la norma de f: xnorm2
+xnorm2 = 0;
+for i=1:ne
+    xnorm2 = xnorm2+f(i)*f(i);
+end
+xnorm2s = xnorm2;
+% Resolvemos el sistema DF * AUX = F mediante el metodo SVD
+[u,d,v] = svd(df); % subroutine svdcmp en fortran
+% estabilizacion de la resolucion: eliminamos los valores singulares que
+% sean muy pequeños comparados con el maximo
+% % valsing=diag(d);
+% % nvs=length(valsing);
+% % vspeq=find(valsing<1e-6*valsing(1));
+% % vsgr=find(valsing>=1e-6*valsing(1));
+% % valsing(vspeq)=0;
+% % d=zeros(size(d));
+% % d(1:nvs,1:nvs)=diag(valsing);
+% % % Resolvemos el sistema DF * AUX = F mediante el metodo SVD estabilizado
+% % ftemp = (u.')*(f.');
+% % auxtemp=zeros(nvs,1);
+% % auxtemp(vsgr)=ftemp(vsgr)./valsing(vsgr);
+% % aux = v*auxtemp;
+
+
+% Lo resolvemos como en fortran:
+w = diag(d);
+w=w.';
+df = u;
+
+% Resolvemos el sistema DF * AUX = F. Es necesario hacerlo via la SVD
+% porque la matriz DF es de rango deficiente (i.e. no es de rango maximo)
+aux = svbksb(df,w,v,ne,nc,f);
+% aux = df\(f.'); % de esta forma da problemas porque DF es de rango
+% deficiente
+
+
+
+% call svdcmp(df,ne,nc,nmax,nmax,w,v)
+%       wmax=0.d0                 !Will be the maximum singular value obtained. 
+%       do j=1,n 
+%          if(w(j).gt.wmax)wmax=w(j) 
+%       enddo 
+%       wmin=wmax*1.0e-6 
+%       do j=1,n 
+%          if(w(j).lt.wmin)w(j)=0.d0 
+%       enddo 
+%       call svbksb(df,w,v,ne,nc,nmax,nmax,f,aux)
+
+% Actualizamos variables
+% for i=1:nc
+%     xkk(i) = aux(i)+xkk(i);
+% end
+xkk(1:nc) = aux(1:nc) + xkk(1:nc);
+% Calculamos la norma entre dos iteraciones
+xnorm = 0;
+% for i=1:nc
+%     xnorm = xnorm + aux(i)*aux(i);
+% end
+xnorm = sum(aux.*aux);
+
+xnorm = sqrt(xnorm);
+xnorms = xnorm;
+
+% Variables de salida
+piterop = xkk;
+tempsit = temps;
+
+
+   
     return [piterop,tempsit,xnorms,xnorm2s,ind,per2]
 
-
-
+'''
 
 
 

@@ -90,18 +90,22 @@ def derw(barra,x,y,z,i,j,k) -> float:
 
 def centro_masas_halo(xydbulge,xydhalo,galparams: list) -> list:
     [barra,disco,bulge,halo,parsb] = galparams
+
+    epsilon = barra.eps
+
     md = disco.GM
-    centrod = np.array([0,0,0])
-    md = 0 #zero perque està centrat i el tenim com a referència
+    centrod = np.array([0,0,0])#zero perque està centrat i el tenim com a referència
     
     mb = barra.GM
     centrob = np.array([0,0,0])
 
     mesf = bulge.GM
-    centroesf = np.array([xydbulge[0],xydbulge[1],0])
+    xd,yd = xydbulge #TODO obligar eventualment a que això siguin vectors 3D
+    centroesf = np.array([xd*cos(epsilon),yd,xd*sin(epsilon)])
 
     mh = halo.GM
-    centroh = np.array([xydhalo[0],xydhalo[1],0])
+    xd,yd = xydbulge
+    centroh = np.array([xd*cos(epsilon),yd,xd*sin(epsilon)])
 
     mt = md+mb+mesf+mh    
     cm = (1/mt)*(md*centrod +mb* centrob + mesf* centroesf + mh * centroh)
@@ -166,7 +170,7 @@ def update(galparams: dict, displacements: list,
     #print("Centro masas halo",xcm,ycm,zcm)
 
     despbar = [-xcm,-ycm]
-    despbul = [despbul[0]-xcm,despbul[1]-ycm]
+    despbul = [despbul[0]-xcm,despbul[1]-ycm] #TODO tenir en compte epsilon
 
     update_displacement(barra,despbar)
     update_displacement(bulge,despbul)

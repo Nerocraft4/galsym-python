@@ -8,7 +8,7 @@ import numpy as np
 import os
 from maths.puntequil import puntequil
 from maths.helpers import matriz_rk78,character_of_eq_point
-from maths.param_continuation import delta_cont #TODO DEPRECATED?
+#from maths.param_continuation import delta_cont #TODO DEPRECATED?
 from maths.param_continuation_grid import pcg
 from maths.aproxlineal import aproxlineal
 from maths.DF import DF
@@ -54,12 +54,10 @@ ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria est
 print("\n\n\n")
 
 if True:
-    #TODO #TODO #TODO estic d'alguna manera, fent això malament: més passos -> pitjor. 
-    #cuidado potencial pot ser que tema epsilon estigui malament
-    pcs = pcg(whichobject= "bulge", whichparam= "yd",
-          paramfrom= 0, paramto= 3, cjacfrom= 0, cjacto= 1, density= 5, 
+    pcs = pcg(whichobject= "halo", whichparam= "yd",
+          paramfrom= 0, paramto= -4, cjacfrom= 0, cjacto= 1, density= 50, 
           ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
-          solveroptions= options, point_evolution=False)   
+          solveroptions= options, point_evolution=True)   
 
 '''Càlcul de punts d'equilibri a partir d'intent inicial
 peqs = puntequil(ini_peqs,galparams,options)
@@ -71,7 +69,7 @@ for i in range(len(eigens)):
     eig = eigens[i]
     print(i+1,eig.eigenvalues)
     character_of_eq_point(eig)
-'''
+
 
 if False:
     continuations = []
@@ -83,6 +81,7 @@ if False:
             func2vals.append(func2val)
     
     plots.param_contin_all(continuations,func2vals)
+'''
 
 if True:
     galparamslist = extract_galparams(galparams)

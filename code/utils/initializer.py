@@ -3,7 +3,7 @@ from maths.helpers import elint
 import numpy as np
 from .io import pack_galparams
 
-def initialize(arxi: str) -> dict:
+def initialize(arxi: str) -> dict,list:
     '''
     In charge of initializing galactic parameters.
     Input:
@@ -11,6 +11,7 @@ def initialize(arxi: str) -> dict:
     Output:
         galparams: dictionary conatining all information from galactic parameters
             {"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
+        displacements: list of 3D displacements of each part of the galaxy
     '''
     data = ""
     with open(file=arxi,mode="r") as f:
