@@ -114,26 +114,28 @@ def character_of_eq_point(eigen):
         if abs(imag(val))<tol:
             if real(val)<-tol:
                 neg+=1
-                types.append["neg"]
+                types.append("neg")
             elif real(val)>tol:
                 pos+=1
-                types.append["pos"]
+                types.append("pos")
             else:
                 cen+=1
-                types.append["cen"]
+                types.append("cen")
         else:
             if abs(real(val))<tol:
                 com+=1
-                types.append["com"]
+                types.append("com")
             else:
                 mix+=1
-                types.append["mix"]
+                types.append("mix")
     if neg>0 and pos>0:
         if neg==pos:
             print("Saddle") #TODO mirar teoria
         else:
             print("unpaired real eigenvalues")
     if com%2!=0: print("unpaired purely imaginary eigenvalues")
+    if neg+pos+cen==0:
+        print("Fully Imaginary")
     print(neg,pos,cen,mix,com)
 
 from models import pot #TODO maybe moure adalt

@@ -3,7 +3,8 @@ from models import der2
 import numpy as np
 from numpy import sin, cos
 
-def DF(xvec,barra,disco,bulge,halo,parsb):
+def DF(xvec: list, galparams: list):
+    [barra,disco,bulge,halo,parsb] = galparams
     epsilon = barra.eps
     omega = barra.omega
     OMEGA2 = omega*omega

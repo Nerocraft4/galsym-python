@@ -7,7 +7,7 @@ global barra, disco, bulge, halo, parsb, ctes_rk78, sect, sectx
 import numpy as np
 import os
 from maths.puntequil import puntequil
-from maths.helpers import matriz_rk78,character_of_eq_point
+from maths.helpers import matriz_rk78, character_of_eq_point
 #from maths.param_continuation import delta_cont #TODO DEPRECATED?
 from maths.param_continuation_grid import pcg
 from maths.aproxlineal import aproxlineal
@@ -46,16 +46,18 @@ ini_peqs = read_ini_peqs(inputdir=inputfolder,params=galparams) #TODO podria est
 
 print("\n\n\n")
 
-if True:
+if False:
     pcs = pcg(whichobject= "halo", whichparam= "yd",
           paramfrom= 0, paramto= -6, cjacfrom= 0, cjacto= 1, density= 50, 
           ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
           solveroptions= options, point_evolution=True)   
 
-'''Càlcul de punts d'equilibri a partir d'intent inicial
-peqs = puntequil(ini_peqs,galparams,options)
+'''Càlcul de punts d'equilibri a partir d'intent inicial'''
 
-DFpeqs = [DF(peqLi,barra,disco,bulge,halo,parsb) for peqLi in peqs]
+galparamslist = extract_galparams(galparams)
+peqs = puntequil(ini_peqs,galparamslist,options)
+
+DFpeqs = [DF(peqLi,galparamslist) for peqLi in peqs]
 eigens = [eig(DFpeq) for DFpeq in DFpeqs]
 
 for i in range(len(eigens)):
@@ -74,7 +76,7 @@ if False:
             func2vals.append(func2val)
     
     plots.param_contin_all(continuations,func2vals)
-'''
+
 
 if True:
     galparamslist = extract_galparams(galparams)
@@ -99,8 +101,9 @@ save(path+"_ts",times)
 save(path+"_ps",paprox)
 
 #TODO currently working on refinamiento
-#refinamiento(pequil=peqs[punt][1],paprox=paprox,times=times,
-#             params=params,CAMP="",CJAC="",GRADC="",SECCIO="",GRADS="")
+if True:
+    refinamiento(pequil=peqs[punt][1],paprox=paprox,times=times,
+                 params=params,CAMP="",CJAC="",GRADC="",SECCIO="",GRADS="")
 
 
 

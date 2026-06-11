@@ -28,7 +28,7 @@ def puntequil(ini_guess: list, galparams: list, options: dict) -> NDArray:
     for i in range(5):
         xf=[]
         [xf,infodict,exitflag,msg] = fsolve(func2, xi[i][:3], 
-                                        args=(barra,disco,bulge,halo,parsb), 
+                                        args=galparams, 
                                         fprime=func2jac,
                                         full_output = options["verbose"],
                                         xtol = options["tolerance"],

@@ -2,13 +2,14 @@ from models import der1
 from models import der2
 import numpy as np
 
-def func2(xvec,barra,disco,bulge,halo,parsb):
+def func2(xvec: list, galparams: list):
     '''
     CREC que aquesta funció és el sistema de primer ordre
     d'equacions diferencials de l'eq 10 del paper del 2016
     de la Patricia, però quan x4,x5,x6=0. Té sentit, suposo,
     ja que ens trobem en punts d'equilibri no?
     '''
+    [barra,disco,bulge,halo,parsb] = galparams
     epsilon = barra.eps
     omega = barra.omega
 
@@ -34,7 +35,8 @@ def func2(xvec,barra,disco,bulge,halo,parsb):
     F[2]=OMEGA2*q1*q2*x+OMEGA2*q1*q1*z-pz
     return F
 
-def func2jac(xvec,barra,disco,bulge,halo,parsb):
+def func2jac(xvec,galparams):
+    [barra,disco,bulge,halo,parsb] = galparams
     epsilon = barra.eps
     omega = barra.omega
 
