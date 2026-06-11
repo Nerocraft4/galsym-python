@@ -5,6 +5,7 @@ from numpy import sin, cos
 
 def DF(xvec: list, galparams: list):
     [barra,disco,bulge,halo,parsb] = galparams
+    print(xvec)
     epsilon = barra.eps
     omega = barra.omega
     OMEGA2 = omega*omega

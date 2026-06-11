@@ -4,13 +4,12 @@ from numpy import sin, cos, real, imag, pi, zeros, array
 from numpy.linalg import eig
 import copy
 
-def aproxlineal(xvec,xkk,params):
+def aproxlineal(xvec: list, xkk: float, params: list):
     '''
     peq: 1x3 array containing x,y,z coordinates of an equilibrium point
     xkk: default xkk=3e-2
-    params: list with all model parameters
+    params: list with all model parameters, [barra, disco, bulge, halo, parsb]
     '''
-    [barra, disco, bulge, halo, parsb] = params
 
     hmin = 1e-3
     hmax = 1
@@ -19,7 +18,7 @@ def aproxlineal(xvec,xkk,params):
     t=0 #TODO maybe not necessary
     N=6 #it can be N=42 if using variational. maybe inclue this as a param?
     
-    A = DF(xvec,barra,disco,bulge,halo,parsb)
+    A = DF(xvec,params)
     vaps, veps = eig(A)
     rr = real(vaps)
     ri = imag(vaps)

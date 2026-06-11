@@ -206,7 +206,7 @@ def CTJAC(xvec: NDArray,pvec: NDArray,params: list) -> float:
     OMEGA = barra.omega
     Q1=sin(EPS)
     Q2=cos(EPS)
-    POTMF = pot.efectivo(x,y,z,barra,disco,bulge,halo,parsb)
+    POTMF = pot.efectivo(x,y,z,params)
     POT=POTMF-0.5*OMEGA*OMEGA*(Q2*Q2*x*x+y*y+Q1*Q1*z*z)-OMEGA*OMEGA*Q1*Q2*x*z
     CTJ=POT+0.5*(xp*xp+yp*yp+zp*zp)
     return CTJ    
