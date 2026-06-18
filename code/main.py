@@ -32,9 +32,9 @@ col = "3" #TODO idem
 arxiu = "_Om"+fil+col
 arxi = inputfolder+"/"+"modMiyFer"+arxiu+".dat"
 galparams, displacements = initialize(arxi)#{"barra":barra,"disco":disco,"bulge":bulge,"halo":halo,"parsb":parsb}
-options = {"verbose":True,"tolerance":1e-8,"maxiter":500} #configure options for aproxlineal, 
+options = {"verbose":True,"tolerance":1e-8,"maxiter":500} #configure options for aproxlineal,
 #TODO maybe set from a .config file
-#TODO verbose: False currently breaks puntequil? 
+#TODO verbose: False currently breaks puntequil?
 
 galparams = setup(galparams,displacements)
 
@@ -46,9 +46,9 @@ if False:
     '''Grid punts equilibri'''
     print("Calculant evolució dels punts d'equilibri")
     pcs = pcg(whichobject= "halo", whichparam= "yd",
-          paramfrom= 0, paramto= -6, cjacfrom= 0, cjacto= 1, density= 50, 
+          paramfrom= 0, paramto= -6, cjacfrom= 0, cjacto= 1, density= 50,
           ini_peqs= ini_peqs, galparams= galparams, displacements=displacements,
-          solveroptions= options, point_evolution=True)   
+          solveroptions= options, point_evolution=True)
 
 '''Càlcul de punts d'equilibri a partir d'intent inicial'''
 galparamslist = extract_galparams(galparams)
@@ -60,8 +60,8 @@ eigens = [eig(DFpeq) for DFpeq in DFpeqs]
 '''Caràcter dels punts d'equilibri'''
 for i in range(len(eigens)):
     eig = eigens[i]
-    print(i+1,eig.eigenvalues)
-    character_of_eq_point(eig)
+    #print(i+1,eig.eigenvalues)
+    #character_of_eq_point(eig)
 
 '''Plots'''
 if True:
@@ -71,6 +71,12 @@ if True:
     #plots.isodensi_cont(rad=15,dens=100,nlines=50, galparams=galparamslist)
     #plots.isodensi(rad=10,dens=100,galparams=galparamslist)
     #plots.isodensi_parts(rad=15,dens=100,galparams=galparamslist)
+
+print("\n\n\n ORB PROP \n")
+
+if True:
+    from maths import orbp
+    orbp.compute_op(params=galparamslist,xi=[-6.175,0,0e0,0,2e-1,0.e0])
 
 #TODO ESTABILIDAD DE CADA PUNTO, però això no calcula la estabilitat, no?
 punt = 3 #provant aquest
@@ -87,14 +93,9 @@ save(path+"_ts",times)
 save(path+"_ps",paprox)
 
 #TODO currently working on refinamiento
-if True:
+if False:
     refinamiento(pequil=peqs[punt],paprox=paprox,times=times,
                  params=galparamslist,CAMP="",CJAC="",GRADC="",SECCIO="",GRADS="")
-
-
-
-
-ctes_rk78 = matriz_rk78()
 
 '''
 #####
@@ -106,27 +107,10 @@ if False:
     continuations = []
     func2vals = []
     for peq in peqs:
-            continuation, func2val = delta_cont(initial_point=peq, initial_delta=xdbulge, 
+            continuation, func2val = delta_cont(initial_point=peq, initial_delta=xdbulge,
                                 increment_delta=0.01, continuation_length=3, params=galparams)
             continuations.append(continuation)
             func2vals.append(func2val)
-    
+
     plots.param_contin_all(continuations,func2vals)
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

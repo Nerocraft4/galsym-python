@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import sqrt, sin, cos
-from maths.helpers import xlmbd 
+from maths.helpers import xlmbd
 from models import der2
 from models import pot
 
@@ -95,7 +95,7 @@ def centro_masas_halo(xydbulge,xydhalo,galparams: list) -> list:
 
     md = disco.GM
     centrod = np.array([0,0,0])#zero perque està centrat i el tenim com a referència
-    
+
     mb = barra.GM
     centrob = np.array([0,0,0])
 
@@ -107,7 +107,7 @@ def centro_masas_halo(xydbulge,xydhalo,galparams: list) -> list:
     xd,yd,zd = xydhalo
     centroh = np.array([xd*cos(epsilon),yd,xd*sin(epsilon)+zd])
 
-    mt = md+mb+mesf+mh    
+    mt = md+mb+mesf+mh
     cm = (1/mt)*(md*centrod +mb* centrob + mesf* centroesf + mh * centroh)
     return cm
 
@@ -125,7 +125,7 @@ def setup(galparams: dict, displacements: list) -> dict:
 
     print(displacements)
     print(barra.eps)
-    
+
     [xcm, ycm, zcm] = centro_masas_halo(despbul,desphal,[barra, disco, bulge, halo, parsb])
     print("Initial step: Centro masas halo",xcm,ycm,zcm)
 
@@ -138,7 +138,7 @@ def setup(galparams: dict, displacements: list) -> dict:
     update_displacement(halo,desphal)
     return galparams
 
-def update(galparams: dict, displacements: list, 
+def update(galparams: dict, displacements: list,
            whichobject: str, whichparam: str, p: float) -> None:
     #print("updating parameters and adjusting to new center of masses")
     [barra, disco, bulge, halo, parsb] = extract_galparams(galparams)
@@ -188,26 +188,45 @@ def update(galparams: dict, displacements: list,
     update_displacement(halo,desphal)
     return
 
-def CTJAC(xvec: NDArray,pvec: NDArray,params: list) -> float:
+def CTJAC(xvec: NDArray, pvec: NDArray,params: list) -> float:
     '''
-    % C*********************************************************************
-    % C Rutina que calcula la constant de Jacobi pel cas d'un potencial de 
-    % C barra.
-    % C El punt X ha d'estar en coordenades sinodiques (x,y,z,xd,yd,zd)
-    % C La constant de Jacobi ve definida com,
-    % C CTE=1/2*(xd^2+yd^2+zd^2)+phi_e(x,y,z) on phi_e es el pot efectiu
-    % C*********************************************************************
-    '''    
+    Rutina que calcula la constant de Jacobi pel cas d'un potencial de
+    barra.
+    El punt X ha d'estar en coordenades sinodiques (x,y,z,xd,yd,zd)
+    La constant de Jacobi ve definida com,
+    CTE=1/2*(xd^2+yd^2+zd^2)+phi_e(x,y,z) on phi_e es el pot efectiu
+    '''
     [barra,disco,bulge,halo,parsb] = params
     x,y,z = xvec
     xp,yp,zp = pvec
-    
+
     EPS=barra.eps
     OMEGA = barra.omega
     Q1=sin(EPS)
     Q2=cos(EPS)
-    POTMF = pot.efectivo(x,y,z,params)
-    POT=POTMF-0.5*OMEGA*OMEGA*(Q2*Q2*x*x+y*y+Q1*Q1*z*z)-OMEGA*OMEGA*Q1*Q2*x*z
+    POT = pot.efectivo(x,y,z,params)
     CTJ=POT+0.5*(xp*xp+yp*yp+zp*zp)
-    return CTJ    
-    
+    return CTJ
+
+def DCTJAC(xvec: NDArray, pvec: NDArray,params: list) -> float:
+    '''
+    Rutina que calcula el gradient de la CJAC en un punt
+    El punt X ha d'estar en coordenades sinodiques (x,y,z,xd,yd,zd)
+    '''
+    [barra,disco,bulge,halo,parsb] = params
+    x,y,z = xvec
+    xp,yp,zp = pvec
+
+    EPS=barra.eps
+    omega = barra.omega
+    Q1=sin(EPS)
+    Q2=cos(EPS)
+    POT = der1.efectivo(x,y,z,params)
+    dCJAC = [0,0,0,0,0,0]
+    dCJAC[0] = POT[0]
+    dCJAC[1] = POT[1]
+    dCJAC[2] = POT[2]
+    dCJAC[3] = xp
+    dCJAC[4] = yp
+    dCJAC[5] = zp
+    return dCJAC

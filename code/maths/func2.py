@@ -6,8 +6,7 @@ def func2(xvec: list, galparams: list):
     '''
     CREC que aquesta funció és el sistema de primer ordre
     d'equacions diferencials de l'eq 10 del paper del 2016
-    de la Patricia, però quan x4,x5,x6=0. Té sentit, suposo,
-    ja que ens trobem en punts d'equilibri no?
+    de la Patricia.
     '''
     [barra,disco,bulge,halo,parsb] = galparams
     epsilon = barra.eps
@@ -25,7 +24,7 @@ def func2(xvec: list, galparams: list):
     [pxb,pyb,pzb]=der1.bar(barra,parsb,x,y,z,omega)
     [pxd,pyd,pzd]=der1.disk(disco,x,y,z,omega)
     [pxbl,pybl,pzbl]=der1.bulge(bulge,x,y,z,omega)
-    [pxh,pyh,pzh]=der1.halo(halo,x,y,z,omega)    
+    [pxh,pyh,pzh]=der1.halo(halo,x,y,z,omega)
     px=pxd+pxb+pxbl+pxh
     py=pyd+pyb+pybl+pyh
     pz=pzd+pzb+pzbl+pzh
@@ -33,7 +32,7 @@ def func2(xvec: list, galparams: list):
     F[0]=OMEGA2*q1*q2*z+OMEGA2*q2*q2*x-px
     F[1]=OMEGA2*y-py
     F[2]=OMEGA2*q1*q2*x+OMEGA2*q1*q1*z-pz
-    return F
+    return np.array(F)
 
 def func2jac(xvec,galparams):
     [barra,disco,bulge,halo,parsb] = galparams
@@ -71,9 +70,3 @@ def func2jac(xvec,galparams):
     DF[1][0]=-pxy
     DF[2][1]=-pyz
     return DF
-
-
-
-
-
-

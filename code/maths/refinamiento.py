@@ -26,14 +26,14 @@ def refinamiento(pequil,paprox,times,params,CAMP,CJAC,GRADC,SECCIO,GRADS):
     eps = barra.eps #redundant
 
     i=0
-    
+
     xa = [pequil[0], pequil[1], pequil[2], 0,0,0]
     cjacorig = CTJAC(pequil,[0,0,0],params)
 
-    xkkorig = copy.deepcopy(paprox) 
+    xkkorig = copy.deepcopy(paprox)
     cjacs = [cjacorig]
 
-    perorig = times[-1] 
+    perorig = times[-1]
     np = i
     mode = 2 #0,1,2 depenent de la informació o equacions que tinguem. 2=fixar energia
     imax = 20# %50 %20
@@ -55,7 +55,7 @@ def refinamiento(pequil,paprox,times,params,CAMP,CJAC,GRADC,SECCIO,GRADS):
             prefin.extend(eps, cjacs[1], per, xkk[0:5]) #TODO extrany
 
             ppinta = pintaorbita(xkk, times2, per, n, np, 100, CAMP) # ppinta contiene: times, puntos orbita
-            
+
             j = j+1 #TODO potencialment redundant?
             xkk[n*np]+=1*dc
             exito = 1
@@ -63,14 +63,14 @@ def refinamiento(pequil,paprox,times,params,CAMP,CJAC,GRADC,SECCIO,GRADS):
         print("dc",dc)
         dc += 10**floor(log10(dc))
         print('refinamiento: dc ',dc)
-    
+
     return c,prefin,ppinta
 
 
 def refop(xkk,temps,cjac,imax,n,np,per,prec,CAMP,CJAC,GRADC,SECCIO,GRADS,mode):
     '''
     % C***********************************************************************
-    % C REFINAMENT D'ORBITA PERIODICA: 
+    % C REFINAMENT D'ORBITA PERIODICA:
     % C INPUT:
     % C XKK: punts q fem servir com a llavor inicial
     % C      es un vector de dimensio (N x NP)
@@ -102,8 +102,8 @@ def refop(xkk,temps,cjac,imax,n,np,per,prec,CAMP,CJAC,GRADC,SECCIO,GRADS,mode):
     xnorm2 = 1e10 #NORMA 2 de funció F
     ind = 0 #flag diferent a la de newton, no entenc perquè
     flagnewton = 0 #suposo que flag de newton, antic indn
-    
-    while xnorm2>prec and ite<imax and ind==0:    
+
+    while xnorm2>prec and ite<imax and ind==0:
         [piterop,tempsit,xnorms,xnorm2s,ind,per2] = iterop(xkk,temps,n,np,per,CAMP,
                                                            CJAC,GRADC,SECCIO,GRADS,
                                                            xnorm,xnorm2,mode)
@@ -121,7 +121,7 @@ def refop(xkk,temps,cjac,imax,n,np,per,prec,CAMP,CJAC,GRADC,SECCIO,GRADS,mode):
         flagnewton = 1
     if xnorm2 < prec:
         print("S'ha convergit amb ", str(ite),"iteracions")
-    
+
     prefop = xkk #TODO gestionar
     return [prefop,temps,flagnewton,per2]
 
@@ -129,7 +129,7 @@ def refop(xkk,temps,cjac,imax,n,np,per,prec,CAMP,CJAC,GRADC,SECCIO,GRADS,mode):
 def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     '''
     % C***********************************************************************
-    % C UNA ITERACIO EN EL REFINAMENT D'UNA OP. RESOLUCIO DEL SISTEMA DF*aux=F 
+    % C UNA ITERACIO EN EL REFINAMENT D'UNA OP. RESOLUCIO DEL SISTEMA DF*aux=F
     % C ON
     % C DF: MATRIU DIFERENCIAL DEL SISTEMA I TE DIMENSIO NE*(N*NP)
     % C     NE=N*NP+1 SI FIXEM ENERGIA O PERIODE I NE=N*NP SI NO FIXEM RES.
@@ -141,7 +141,7 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     % C XKK: punts q fem servir com a llavor inicial
     % C      es un vector de dimensio (N x NP + 1) si fixem energia o periode
     % C      o (N x NP) si no fixem res i fem norma minima de correccio.
-    % C      XKK=[x_1,x_2,..,x_NP, h o tau] on xi es el vector de dim N 
+    % C      XKK=[x_1,x_2,..,x_NP, h o tau] on xi es el vector de dim N
     % C      amb p+v.
     % C TEMPS: TEMPS ASSOCIAT A CADA UN DELS PUNTS x_i
     % C N: DIMENSIO DE L'ESPAI (POS+VEL)
@@ -151,7 +151,7 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     % C GRADC: GRADIENT DE LA CONSTANT DE JACOBI
     % C SECCIO: EQUACIO DE  LA SECCIO
     % C GRADS: GRADIENT DE LA SECCIO
-    % C IFEM: ENS INDICA QUE FEM: 0: NO FIXEM ENERGIA NI PERIODE
+    % C mode: ENS INDICA QUE FEM: 0: NO FIXEM ENERGIA NI PERIODE
     % C                           1: FIXEM PERIODE (ELIMINEM EQ. ENERGIA)
     % C                           2: FIXEM ENERGIA (ELIMINEM EQ. PERIODE)
     % C OUTPUT:
@@ -160,7 +160,7 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     % C XNORM: NORMA DEL VECTOR AUX
     % C XNORM2: NORMA DEL VECTOR F
     % C IND: INDICADOR: 1 -> MATRIU DE SISTEMA SINGULAR, O BE ALTRE ERROR
-    % C                      D'ENTRADA (per ex IFEM erroni).
+    % C                      D'ENTRADA (per ex mode erroni).
     % C                 0 -> MATRIU DE SISTEMA NO SINGULAR
     % C***********************************************************************
    '''
@@ -177,29 +177,29 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     hmax = 5e-2
     dtmax = 500
 
-    assert n*np+2 > nmax, "iterop: parametro nmax pequeno. Se necesita: n*np+2"
-    
-    if ifem == 0:
+    assert n*np+2 <= nmax, "iterop: parametro nmax demasiado pequeño. Se necesita almenos >=n*np+2"
+
+    if mode == 0: #energia i periode lliures
         ne = n*np
         nc = n*np
-    elif ifem==1 or ifem==2:
+    elif mode==1 or mode==2: #energia o periode fixes
         ne = n*np+1
         nc = n*np
-    elif ifem == 3:
+    elif mode == 3: #energia i periode fixes
         ne = n*np+2
         nc = ne
     else:
-        print('iterop: no se que hacer! ifem = ',ifem)
+        print('iterop: no se que hacer! mode = ',mode)
         ind = 1
     return
 
 # Inicializamos matriz DF y vector F a cero
-    df = np.zeros[(ne,nc)] 
+    df = np.zeros[(ne,nc)]
     f = np.zeros[(1,ne)]
 
     # Llenamos la matriz DF y el vector F
     [df2,f2,inddf,per2] = ompledf(df,nmax,f,xkk,n,ne,np,temps,per,
-                                  CAMP,CJAC,GRADC,SECCIO,GRADS,ifem,
+                                  CAMP,CJAC,GRADC,SECCIO,GRADS,mode,
                                   tolnw,hmin,hmax,dtmax)
     df = df2
     f = f2
@@ -242,19 +242,8 @@ def iterop(xkk,temps,n,np,per,CAMP,CJAC,GRADC,SECCIO,GRADS,xnorm,xnorm2,mode):
     # Variables de salida
     piterop = xkk
     tempsit = temps
-       
+
     return [piterop,tempsit,xnorms,xnorm2s,ind,per2]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+def ompledf():
+    pass

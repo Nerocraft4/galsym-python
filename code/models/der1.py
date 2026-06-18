@@ -17,16 +17,16 @@ def bar(barra,parsb,x,y,z,omega):
 
     if X2*parsb.UA2+Y2*parsb.UB2+Z2*parsb.UC2 <= 1:
         px = -parsb.CTE*x*(
-            (parsb.V100+X2*(X2*parsb.V300+2*(Y2*parsb.V210-parsb.V200))  
-            +Y2*(Y2*parsb.V120+2*(Z2*parsb.V111-parsb.V110))             
-            +Z2*(Z2*parsb.V102+2*(X2*parsb.V201-parsb.V101))))             
+            (parsb.V100+X2*(X2*parsb.V300+2*(Y2*parsb.V210-parsb.V200))
+            +Y2*(Y2*parsb.V120+2*(Z2*parsb.V111-parsb.V110))
+            +Z2*(Z2*parsb.V102+2*(X2*parsb.V201-parsb.V101))))
         py = -parsb.CTE*y*(
-            (parsb.V010+X2*(X2*parsb.V210+2*(Y2*parsb.V120-parsb.V110))  
-            +Y2*(Y2*parsb.V030+2*(Z2*parsb.V021-parsb.V020))             
+            (parsb.V010+X2*(X2*parsb.V210+2*(Y2*parsb.V120-parsb.V110))
+            +Y2*(Y2*parsb.V030+2*(Z2*parsb.V021-parsb.V020))
             +Z2*(Z2*parsb.V012+2*(X2*parsb.V111-parsb.V011))))
         pz = -parsb.CTE*z*(
-            (parsb.V001+X2*(X2*parsb.V201+2*(Y2*parsb.V111-parsb.V101))  
-            +Y2*(Y2*parsb.V021+2*(Z2*parsb.V012-parsb.V011))          
+            (parsb.V001+X2*(X2*parsb.V201+2*(Y2*parsb.V111-parsb.V101))
+            +Y2*(Y2*parsb.V021+2*(Z2*parsb.V012-parsb.V011))
             +Z2*(Z2*parsb.V003+2*(X2*parsb.V102-parsb.V002))))
     else:
         XL = xlmbd(X2,Y2,Z2,A2,B2,C2)
@@ -63,7 +63,7 @@ def bar(barra,parsb,x,y,z,omega):
         W030 = (D2*UB3*UB3 - W120 - W021)*0.2
         W003 = (D2*UC3*UC3 - W102 - W012)*0.2
 
-        px = -parsb.CTE * x*( 
+        px = -parsb.CTE * x*(
             (W100+X2*(X2*W300+2*(Y2*W210-W200))
             +Y2*(Y2*W120+2*(Z2*W111-W110))
             +Z2*(Z2*W102+2*(X2*W201-W101))))
@@ -120,3 +120,20 @@ def halo(halo,x,y,z,omega):
     pzh =(1+AM/np.sqrt(BM*BM+z*z))*(z*c)
     return [pxh,pyh,pzh]
 
+def efectivo(x,y,z,galparams):
+    [mbarra,mdisco,mbulge,mhalo,parsb] = galparams
+    eps = mbarra.eps
+    omega = mbarra.omega
+    Q1 = sin(eps)
+    Q2 = cos(eps)
+
+    dpbar = bar(x,y,z,mbarra,parsb)
+    dpdisk = disk(x,y,z,mdisco)
+    dpbulge = bulge(x,y,z,mbulge)
+    dphalo = halo(x,y,z,mhalo)
+
+    dpotmf = dpbar + dpdisk + dpbulge + dphalo #vectors 1x3
+    dpotefx = dpotmf[0] - omega**2 * (Q2**2 * x - Q1*Q2*z)
+    dpotefy = dpotmf[1] - omega**2 * y
+    dpotefz = dpotmf[2] - omega**2 * (Q1**2 * z - Q1*Q2*x)
+    return [dpotefx,dpotefy,dpotefz]
