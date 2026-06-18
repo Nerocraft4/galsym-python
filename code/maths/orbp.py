@@ -417,11 +417,12 @@ def tableToPlotPO(tv,xv,tf,nvvf,h,hmin,hmax,tol,vfield,params):
     tabTX.append([tt,xt[:,:ndim]])
     return tabTX
 
-def compute_op(params: list, xi: list):
+def compute_op(params: list, xi: list, gdgSec):
     '''
     Input:
         params: galparams list
         xi: xinicial
+        gdgSec: lambda function returning g and dg.
     '''
     print("\ncompute_op")
     np.set_printoptions(precision=5)
@@ -431,11 +432,9 @@ def compute_op(params: list, xi: list):
     tol=1.e-10
     h=0.01
     ti=0
-    gdgSec = lambda xvec : [xvec[1],[0,1,0,0,0,0]] #g(xvec)=y, dg(xvec)=[0,1,0,0,0,0]
 
-    deltaxi = np.array([1e-5,0,-1e-4,0,0,0]) #TODO perquè aquest valor en concret?
-
-    xi += deltaxi
+    #deltaxi = np.array([1e-5,0,-1e-4,0,0,0]) #TODO perquè aquest valor en concret?
+    #xi += deltaxi
 
     #fixa les condicions de càlcul
     tolSVD=1.e-5 #mes petit que aixo considero valor singular massa petit
@@ -525,6 +524,11 @@ def compute_op(params: list, xi: list):
     print(len(tabTX[1][0]),len(tabTX[1][1][0]))
     temps = np.hstack((tabTX[0][0],tabTX[1][0]))
     pos = np.vstack((tabTX[0][1],tabTX[1][1])).transpose()
-    plt.scatter(pos[0],pos[1],c=temps)
-    plt.show()
+    #plt.scatter(pos[0],pos[1],c=temps)
+    #plt.show()
+
+    ##also compute cjac value
+    xvec = pos.transpose()[-1]
+    cjac = CTJAC(xvec=xvec[:3],pvec=xvec[3:],params=params)
+    return temps,pos,cjac
         #hold on

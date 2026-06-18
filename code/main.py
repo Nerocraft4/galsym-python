@@ -60,8 +60,10 @@ eigens = [eig(DFpeq) for DFpeq in DFpeqs]
 '''Caràcter dels punts d'equilibri'''
 for i in range(len(eigens)):
     eig = eigens[i]
-    #print(i+1,eig.eigenvalues)
-    #character_of_eq_point(eig)
+    print("Point",i+1)
+    print(peqs[i][:3])
+    print(eig.eigenvalues)
+    character_of_eq_point(eig)
 
 '''Plots'''
 if True:
@@ -76,7 +78,15 @@ print("\n\n\n ORB PROP \n")
 
 if True:
     from maths import orbp
-    orbp.compute_op(params=galparamslist,xi=[-6.175,0,0e0,0,2e-1,0.e0])
+    from matplotlib import pyplot as plt
+    for v in [5e-2,3e-2,9e-3,1e-4]:
+        gdgSec = lambda xvec : [xvec[0],[1,0,0,0,0,0]] #g(xvec)=y, dg(xvec)=[0,1,0,0,0,0]
+        temps,pos,cjac = orbp.compute_op(params=galparamslist,xi=[0,5.467,0e0,v,0,0.e0],gdgSec=gdgSec)
+        print(cjac)
+        plt.scatter(pos[0],pos[1],c=temps,s=1)
+        plt.xlim(-10,10)
+        plt.ylim(-10,10)
+    plt.show()
 
 #TODO ESTABILIDAD DE CADA PUNTO, però això no calcula la estabilitat, no?
 punt = 3 #provant aquest
