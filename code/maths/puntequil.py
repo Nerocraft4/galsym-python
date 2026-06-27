@@ -3,13 +3,13 @@ from .func2 import func2, func2jac
 import numpy as np
 from numpy.typing import NDArray
 
-def puntequil(ini_guess: list, galparams: list, options: dict) -> NDArray:
+def puntequil(ini_guessess: list, galparams: list, options: dict) -> NDArray:
     '''
     This function fins an equilibrium point in the field of the galaxy given galactic
     parameters and an initial guess, through Newton's method (fsolve)
     Input:
-        ini_guess:  5x3 vector containing 5 3D initial guesses, one for each Lagr point
-                    velocities are assumed to be zero.
+        ini_guess:  Nx3 vector containing N 3D initial guesses, one for each Lagr point
+                    velocities are assumed to be zero. N usually is 5
         galparams:  list of objects containing galactic params
         options:    dictionary of settings for function solver
             verbose:    boolean, defafult false
@@ -19,15 +19,15 @@ def puntequil(ini_guess: list, galparams: list, options: dict) -> NDArray:
         peqs:   5x3 array containing the equilibrium points of the system
     '''
     [barra,disco,bulge,halo,parsb] = galparams
+    N_guesses = len(ini_guessess)
     omega = barra.omega
-    xi=ini_guess
     xacc=1e-14
     OMEGA2 = omega*omega
     pequil = []
 
-    for i in range(5):
+    for i in range(N_guesses):
         xf=[]
-        [xf,infodict,exitflag,msg] = fsolve(func2, xi[i][:3], 
+        [xf,infodict,exitflag,msg] = fsolve(func2, ini_guessess[i][:3], 
                                         args=galparams, 
                                         fprime=func2jac,
                                         full_output = options["verbose"],
@@ -42,11 +42,5 @@ def puntequil(ini_guess: list, galparams: list, options: dict) -> NDArray:
                 xf[j]=0
         pequil.append(xf)
         
-    #NO CANVIO ORDRE PERQUE ES TORNARÀ BOIG
-    peqL1 = pequil[0] # punto equilibrio derecho
-    peqL2 = pequil[1] # punto equilibrio izquierdo
-    peqL3 = pequil[2] # punto equilibrio central
-    peqL4 = pequil[3] # punto equilibrio superior
-    peqL5 = pequil[4] # punto equilibrio inferior
-    peqs = np.array([peqL1, peqL2, peqL3,peqL4, peqL5])
+    peqs = np.array(pequil)
     return peqs

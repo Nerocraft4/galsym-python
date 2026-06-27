@@ -3,7 +3,7 @@ import os
 import numpy as np
 from numpy.typing import NDArray
 
-def read_ini_peqs(inputdir: str, params: dict) -> NDArray[np.float_]:
+def read_ini_peqs(inputdir: str, params: dict) -> NDArray[np.float64]:
     my_ini_guess_pequi_file = inputdir+"/"+ini_guess_pequi_file(extract_galparams(params))
     print("Attempting to read initial guess for eq points from",my_ini_guess_pequi_file)
     ini_peqs_data = ""

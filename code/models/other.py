@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import sqrt, sin, cos
 from maths.helpers import xlmbd
-from models import der2
+from models import der1, der2
 from models import pot
 
 from numpy.typing import NDArray
@@ -188,7 +188,7 @@ def update(galparams: dict, displacements: list,
     update_displacement(halo,desphal)
     return
 
-def CTJAC(xvec: NDArray, pvec: NDArray,params: list) -> float:
+def CTJAC(xvec: NDArray, pvec: NDArray, params: list) -> float:
     '''
     Rutina que calcula la constant de Jacobi pel cas d'un potencial de
     barra.

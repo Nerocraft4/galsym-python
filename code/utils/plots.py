@@ -88,3 +88,18 @@ def param_contin_all(continuations: list, func2vals: list) -> None:
     plt.xlabel("Delta Xbulge, $10^3=1kpc$")
     plt.ylabel("Norm of the amended potential")
     plt.show()
+
+def plot_PO_3D(points,times,var):
+    print(points.shape)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    sp = ax.scatter(points[0],points[1],points[2],c=times,s=1)
+    #fig.colorbar(sp)
+    #ax.set_xlim(-10,10)
+    #ax.set_ylim(-10,10)
+    #ax.set_zlim(-1,1)
+    ax.set_title(str("PO around $L_i$ in the case $\epsilon=$"+str(round(var,3))))
+    ax.set_xlabel("X (kpc)")
+    ax.set_ylabel("Y (kpc)")
+    ax.set_zlabel("Z (kpc)")
+    plt.show()

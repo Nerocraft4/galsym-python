@@ -124,13 +124,13 @@ def efectivo(x,y,z,galparams):
     [mbarra,mdisco,mbulge,mhalo,parsb] = galparams
     eps = mbarra.eps
     omega = mbarra.omega
-    Q1 = sin(eps)
-    Q2 = cos(eps)
+    Q1 = np.sin(eps)
+    Q2 = np.cos(eps)
 
-    dpbar = bar(x,y,z,mbarra,parsb)
-    dpdisk = disk(x,y,z,mdisco)
-    dpbulge = bulge(x,y,z,mbulge)
-    dphalo = halo(x,y,z,mhalo)
+    dpbar = bar(mbarra,parsb,x,y,z,omega)
+    dpdisk = disk(mdisco,x,y,z,omega)
+    dpbulge = bulge(mbulge,x,y,z,omega)
+    dphalo = halo(mhalo,x,y,z,omega)
 
     dpotmf = dpbar + dpdisk + dpbulge + dphalo #vectors 1x3
     dpotefx = dpotmf[0] - omega**2 * (Q2**2 * x - Q1*Q2*z)

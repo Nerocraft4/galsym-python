@@ -60,8 +60,7 @@ def cjdcj(xvec,params):
     '''
     Returns the Jacobi constant and its gradient (#TODO) given an initial point
     '''
-    print("cjdcj")
-    cjac = CJAC(xvec=xvec[:3],pvec=xvec[3:],params=params)
+    cjac = CTJAC(xvec=xvec[:3],pvec=xvec[3:],params=params)
     dcjac = DCTJAC(xvec=xvec[:3],pvec=xvec[3:],params=params)
     return cjac, dcjac
 
@@ -417,7 +416,7 @@ def tableToPlotPO(tv,xv,tf,nvvf,h,hmin,hmax,tol,vfield,params):
     tabTX.append([tt,xt[:,:ndim]])
     return tabTX
 
-def compute_op(params: list, xi: list, gdgSec):
+def compute_op(params: list, xi: list, gdgSec, cjv: float = 0):
     '''
     Input:
         params: galparams list
@@ -430,26 +429,22 @@ def compute_op(params: list, xi: list, gdgSec):
     hmin=1.e-4
     hmax=1.e0
     tol=1.e-10
-    h=0.01
+    h=1e-5 #TODO
     ti=0
 
-    #deltaxi = np.array([1e-5,0,-1e-4,0,0,0]) #TODO perquè aquest valor en concret?
-    #xi += deltaxi
-
     #fixa les condicions de càlcul
-    tolSVD=1.e-5 #mes petit que aixo considero valor singular massa petit
+    tolSVD=1.e-6 #mes petit que aixo considero valor singular massa petit
 
     ntp=1    #nombre d'arcs de tir paral.lel i pas
     htp=1    #delta temps pel tir paralel
     ntall=2  #vigila el nombre de talls fins a seccio que queden !!
 
-    cjv=0
     pt=0
     #pt=2.45 Tria periode o deixa els 0 si vols iteracio norma minima.
     #%cji=cjrtbp(xi,mu)
-    #cjv=3.631 Descomentant aquesta fara target cj, pero pt ha de ser >0 pel lloc a DF !
+    #cjv=-0.1369 #Descomentant aquesta fara target cj, pero pt ha de ser >0 pel lloc a DF !
 
-    hnd=1e-5  #Posa 0 per indicar que vfield te variacionals, 1.e-5 per derivacio num de stm
+    hnd=1e-11  #Posa 0 per indicar que vfield te variacionals, 1.e-5 per derivacio num de stm
     if hnd==0: #TODO no implementat encara!
         vfield=CAMPSB_var
     else:
@@ -466,62 +461,52 @@ def compute_op(params: list, xi: list, gdgSec):
         tv.append(tfa) #CONCAT last point
         xv.append(xfa) #CONCAT last point
 
-    print("xv,",xv)
-    print("tv,",tv)
     xv = np.array(xv)
     tv = np.array(tv)
 
     narcs,ndim=xv.shape #num d'arcs d'orb que s'integren i dim del camp vect
-    print("narcs,",narcs,"ndim,",ndim)
-    print("\n")
 
-    for i in range(10): #TODO hardcode???
+    for i in range(20): #TODO en general sembla que no acaben de ser suficients iteracions.
+                        #la norma molts cops no baixa de 0.02 o aixi, esperaria convergència + forta
         [F,DF,tf,xf]=cal_FDF_for_PO(tv,xv,pt,ntall,h,hmin,hmax,tol,vfield,gdgSec,hnd,params)
-        #print(i,"F")
-        #print(F)
-        #print(i,"DF")
-        #print(DF)
 
         ############################################################
-        if cjv > 0:  #canviem equacio de target period per equacio target Ct Jac
-            [cjc, dcj]= cjdcj(xv[narcs-1]) #TODO potencialment això no funciona pels index
-            llr_from=(narcs-1)*ndim+1
+        if cjv != 0:  #afegim 13ena equacio de target period per equacio target Ct Jac
+            [cjc, dcj]= cjdcj(xv[narcs-1],params)
+            llr_from=(narcs-1)*ndim
             llr_to=narcs*ndim
-            F[narcs*ndim]=cjv-cjc
-            DF[narcs*ndim,llr_from:llr_to]=dcj
+            F = np.append(F,cjv-cjc)
+            DFlast = np.zeros(12)
+            DFlast[llr_from:llr_to]+=dcj
+            DF = np.vstack((DF,DFlast))
 
         #Correccio usant SVD, corr=V*inv(S)*U'*F amb svd's "prou grans"
         [U,diagS,V] = np.linalg.svd(DF)
         S = np.diag(diagS) #keep it consistent with MatLab
         nsf,nsc = DF.shape
-
         #count nonzero values of diagonal
         nvsg = int(np.sum([1 if x>tolSVD else 0 for x in diagS]))
 
-        U[:,nvsg+1:nsf]=[] #TODO sembla que no passa?
+        if nsf!=nsc:
+            #això per borrar columnes, només quan imposem cjac
+            a=list(range(nvsg,nsf))
+            U = np.delete(U,a,1)
         SA=1./diagS[0:nvsg]
-        V[:,nvsg+1:nsc]=[]  #TODO sembla que no passa?
-        #print("U\n",U)
-        #print("SA\n",SA)
-        #print("V\n",V)
+        V[:,nvsg+1:nsc]=[]  #TODO potser també em cal fer triquinuelas
+
         for j in range(nvsg):
             U[:,j]=U[:,j]*SA[j]
-        #print("U\n",U)
         UxF = np.matmul(U.transpose(),F) #hauria de ser 1x12
-        #print("A",UxF)
-
-        #print("UxF",UxF)
         dxv = np.matmul(V.transpose(), UxF) #hauria de ser 1x12
-        #print("dxv",dxv)
-        #print("xv correction iter ",i)
-        #print("dxv",dxv)
         for k in range(narcs):
-            xv[k] += dxv[(k)*(ndim):(k+1)*(ndim)] #TODO revisar això que segur que ho puc deixar millor
-        print(xv)
+            xv[k] += dxv[k*ndim:(k+1)*ndim]
+        #print(xv[:6])
+        norm = np.linalg.norm(dxv[k*ndim:(k+1)*ndim])
+        if norm>50: break
+        #if norm<0.01: break
 
-        #%----- dibuix
     tabTX = tableToPlotPO(tv,xv,tf,ndim,h,hmin,hmax,tol,vfield,params)
-    print(len(tabTX[1][0]),len(tabTX[1][1][0]))
+    print("iters",len(tabTX[1][0]))
     temps = np.hstack((tabTX[0][0],tabTX[1][0]))
     pos = np.vstack((tabTX[0][1],tabTX[1][1])).transpose()
     #plt.scatter(pos[0],pos[1],c=temps)
@@ -531,4 +516,3 @@ def compute_op(params: list, xi: list, gdgSec):
     xvec = pos.transpose()[-1]
     cjac = CTJAC(xvec=xvec[:3],pvec=xvec[3:],params=params)
     return temps,pos,cjac
-        #hold on
